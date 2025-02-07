@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { Loader2 } from "lucide-react"
+import ImageGrid from "./ImageGrid"
 
-function ResultSection({ generatedImage, isGenerating }) {
+function ResultSection({ generatedImages, isGenerating, error, onImageDelete, companyName }) {
   return (
     <div className="h-full">
       <AnimatePresence mode="wait">
@@ -25,20 +26,17 @@ function ResultSection({ generatedImage, isGenerating }) {
               transition={{ delay: 0.2 }}
               className="text-gray-500 mt-4"
             >
-              Generating your image...
+              Generating your images...
             </motion.p>
           </motion.div>
-        ) : generatedImage ? (
-          <motion.img
-            key="result"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            src={generatedImage}
-            alt="Generated"
-            className="w-full h-full object-contain rounded-lg"
-          />
+        ) : generatedImages && generatedImages.length > 0 ? (
+          <div className="bg-white rounded-2xl p-6">
+            <ImageGrid
+              images={generatedImages}
+              onImageDelete={onImageDelete}
+              companyName={companyName}
+            />
+          </div>
         ) : (
           <motion.div
             key="empty"
@@ -47,7 +45,7 @@ function ResultSection({ generatedImage, isGenerating }) {
             exit={{ opacity: 0 }}
             className="h-full flex items-center justify-center"
           >
-            <p className="text-gray-400 text-lg">Generated image will appear here</p>
+            <p className="text-gray-400 text-lg">Generated images will appear here</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -56,4 +54,3 @@ function ResultSection({ generatedImage, isGenerating }) {
 }
 
 export default ResultSection
-
