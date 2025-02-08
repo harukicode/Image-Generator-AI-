@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Loader2 } from "lucide-react"
 import ImageGrid from "./ImageGrid"
 
-function ResultSection({ generatedImages, isGenerating, error, onImageDelete, companyName }) {
+function ResultSection({ generatedImages, isGenerating, error, onImageDelete }) {
   return (
     <div className="h-full">
       <AnimatePresence mode="wait">
@@ -34,7 +34,6 @@ function ResultSection({ generatedImages, isGenerating, error, onImageDelete, co
             <ImageGrid
               images={generatedImages}
               onImageDelete={onImageDelete}
-              companyName={companyName}
             />
           </div>
         ) : (

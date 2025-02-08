@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { motion } from "framer-motion"
 import axios from "axios"
@@ -12,17 +10,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 function App() {
   const [uploadedImage, setUploadedImage] = useState(null)
-  const [newCompanyName, setNewCompanyName] = useState("")
+  const [customPrompt, setCustomPrompt] = useState("") // Заменяем newCompanyName на customPrompt
   const [currentPrompt, setCurrentPrompt] = useState("")
   const [generatedImages, setGeneratedImages] = useState([])
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false)
   const [isGeneratingImages, setIsGeneratingImages] = useState(false)
   const [error, setError] = useState(null)
   const [chatContext, setChatContext] = useState(null)
-  const [userPrompt, setUserPrompt] = useState("") // Для пользовательского ввода
+  const [userPrompt, setUserPrompt] = useState("")
   const [numImages, setNumImages] = useState(4)
   const [magicPrompt, setMagicPrompt] = useState("AUTO")
-  
   
   const handleReset = () => {
     setCurrentPrompt("")
@@ -30,21 +27,22 @@ function App() {
     setError(null)
     setChatContext(null)
     setUserPrompt("")
+    setCustomPrompt("") // Добавляем сброс пользовательского промпта
   }
   
   const handleStartPromptGeneration = async () => {
     setIsGeneratingPrompt(true)
     setError(null)
-    setChatContext(null) // Сбрасываем контекст при новом изображении
+    setChatContext(null)
     
     try {
-      if (!uploadedImage || !newCompanyName) {
-        throw new Error("Please provide both an image and a company name")
+      if (!uploadedImage || !customPrompt) {
+        throw new Error("Please provide both an image and a prompt")
       }
       
       const formData = new FormData()
       formData.append("image", uploadedImage)
-      formData.append("newName", newCompanyName)
+      formData.append("customPrompt", customPrompt) // Изменяем newName на customPrompt
       
       const response = await axios.post("http://localhost:3000/api/generate-prompt", formData, {
         headers: {
@@ -54,7 +52,7 @@ function App() {
       
       if (response.data.success) {
         setCurrentPrompt(response.data.prompt)
-        setChatContext(response.data.context) // Сохраняем контекст чата
+        setChatContext(response.data.context)
       } else {
         throw new Error(response.data.error || "Prompt generation failed")
       }
@@ -73,7 +71,7 @@ function App() {
     try {
       const response = await axios.post("http://localhost:3000/api/regenerate-prompt", {
         context: chatContext,
-        userPrompt: userPrompt || undefined // Отправляем пользовательский ввод, если он есть
+        userPrompt: userPrompt || undefined
       })
       
       if (response.data.success) {
@@ -101,7 +99,6 @@ function App() {
       
       const response = await axios.post("http://localhost:3000/api/generate-images", {
         prompt: currentPrompt,
-        companyName: newCompanyName,
         numImages: numImages,
         magicPrompt: magicPrompt
       })
@@ -122,19 +119,15 @@ function App() {
   
   const handleImageDelete = async (imageUrl) => {
     try {
-      // Извлекаем имя файла из URL
-      const filename = imageUrl.split('/').pop();
-      
-      // Удаляем изображение через API
-      const response = await axios.delete(`http://localhost:3000/api/generated-images/${filename}`);
+      const filename = imageUrl.split('/').pop()
+      const response = await axios.delete(`http://localhost:3000/api/generated-images/${filename}`)
       
       if (response.data.success) {
-        // Обновляем локальное состояние
-        setGeneratedImages(generatedImages.filter((img) => img !== imageUrl));
+        setGeneratedImages(generatedImages.filter((img) => img !== imageUrl))
       }
     } catch (error) {
-      console.error("Failed to delete image:", error);
-      setError("Failed to delete image. Please try again.");
+      console.error("Failed to delete image:", error)
+      setError("Failed to delete image. Please try again.")
     }
   }
   
@@ -170,8 +163,8 @@ function App() {
                 whileHover={{ y: -2 }}
               >
                 <GenerationSection
-                  newCompanyName={newCompanyName}
-                  setNewCompanyName={setNewCompanyName}
+                  customPrompt={customPrompt}
+                  setCustomPrompt={setCustomPrompt}
                   onStartPromptGeneration={handleStartPromptGeneration}
                   onRegeneratePrompt={handleRegeneratePrompt}
                   onGenerate={handleGenerate}
@@ -180,11 +173,11 @@ function App() {
                   setUserPrompt={setUserPrompt}
                   isGeneratingPrompt={isGeneratingPrompt}
                   isGeneratingImages={isGeneratingImages}
-                  isStartDisabled={!uploadedImage || !newCompanyName}
+                  isStartDisabled={!uploadedImage || !customPrompt}
                   numImages={numImages}
+                  setNumImages={setNumImages}
                   magicPrompt={magicPrompt}
                   setMagicPrompt={setMagicPrompt}
-                  setNumImages={setNumImages}
                 />
               </motion.div>
             </motion.div>
@@ -203,7 +196,6 @@ function App() {
                   isGenerating={isGeneratingImages}
                   error={error}
                   onImageDelete={handleImageDelete}
-                  companyName={newCompanyName}
                 />
               </motion.div>
             </motion.div>
@@ -218,4 +210,3 @@ function App() {
 }
 
 export default App
-

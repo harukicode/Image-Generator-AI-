@@ -2,10 +2,15 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Check, Download, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import DownloadDialog from "@/components/DownloadDialog"
+import { useToast } from "@/hooks/use-toast"
+import axios from "axios"
 
-function ImageGrid({ images, onImageDelete, companyName }) {
+function ImageGrid({ images, onImageDelete }) {
 	const [selectedImages, setSelectedImages] = useState(new Set())
 	const [hoveredImage, setHoveredImage] = useState(null)
+	const [isDownloadDialogOpen, setIsDownloadDialogOpen] = useState(false)
+	const { toast } = useToast()
 	
 	const toggleImageSelection = (image) => {
 		const newSelected = new Set(selectedImages)
@@ -17,34 +22,60 @@ function ImageGrid({ images, onImageDelete, companyName }) {
 		setSelectedImages(newSelected)
 	}
 	
-	const downloadSelectedImages = async () => {
-		const selectedImagesArray = Array.from(selectedImages);
-		
-		// Скачиваем каждое изображение
-		selectedImagesArray.forEach(url => {
-			const link = document.createElement('a');
-			link.href = `http://localhost:3000${url}`;
+	const downloadSelectedImages = async (companyName) => {
+		try {
+			const selectedImagesArray = Array.from(selectedImages)
 			
-			// Получаем исходное имя файла из URL
-			const fullFilename = url.split('/').pop();
-			
-			// Разбиваем имя файла на части и удаляем timestamp
-			const parts = fullFilename.split('-');
-			// Если файл содержит timestamp (должно быть 3 части: name-timestamp-number.png)
-			if (parts.length === 3) {
-				const name = parts[0];
-				const number = parts[2]; // Включает расширение .png
-				link.download = `${name}-${number}`;
-			} else {
-				// Если формат другой, оставляем как есть
-				link.download = fullFilename;
+			// Скачиваем каждое изображение
+			for (const url of selectedImagesArray) {
+				// Получаем файл как blob
+				const response = await axios({
+					url: `http://localhost:3000${url}`,
+					method: 'GET',
+					responseType: 'blob',
+				})
+				
+				// Получаем индекс из имени файла
+				const fullFilename = url.split('/').pop()
+				const fileIndex = fullFilename.split('-').pop()
+				
+				// Создаем новое имя файла
+				const newFilename = `${companyName}-${fileIndex}`
+				
+				// Создаем URL для скачивания
+				const downloadUrl = window.URL.createObjectURL(new Blob([response.data]))
+				
+				// Создаем ссылку для скачивания
+				const link = document.createElement('a')
+				link.href = downloadUrl
+				link.setAttribute('download', newFilename)
+				
+				// Запускаем скачивание
+				document.body.appendChild(link)
+				link.click()
+				
+				// Очищаем
+				document.body.removeChild(link)
+				window.URL.revokeObjectURL(downloadUrl)
 			}
 			
-			link.click();
-		});
-		
-		// Очищаем выбор после скачивания
-		setSelectedImages(new Set());
+			// Очищаем выбранные изображения
+			setSelectedImages(new Set())
+			setIsDownloadDialogOpen(false)
+			
+			toast({
+				title: "Success",
+				description: "Images downloaded successfully",
+			})
+			
+		} catch (error) {
+			console.error('Download error:', error)
+			toast({
+				title: "Error",
+				description: "Failed to download images",
+				variant: "destructive",
+			})
+		}
 	}
 	
 	return (
@@ -56,7 +87,7 @@ function ImageGrid({ images, onImageDelete, companyName }) {
 				</div>
 				{selectedImages.size > 0 && (
 					<Button
-						onClick={downloadSelectedImages}
+						onClick={() => setIsDownloadDialogOpen(true)}
 						className="bg-blue-600 hover:bg-blue-700 text-white"
 					>
 						<Download className="h-4 w-4 mr-2" />
@@ -64,6 +95,13 @@ function ImageGrid({ images, onImageDelete, companyName }) {
 					</Button>
 				)}
 			</div>
+			
+			{/* Download Dialog */}
+			<DownloadDialog
+				isOpen={isDownloadDialogOpen}
+				onClose={() => setIsDownloadDialogOpen(false)}
+				onDownload={downloadSelectedImages}
+			/>
 			
 			{/* Image Grid */}
 			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

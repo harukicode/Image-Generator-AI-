@@ -36,7 +36,7 @@ const port = process.env.PORT || 3000
 
 // Setup CORS with options
 const corsOptions = {
-	origin: process.env.FRONTEND_URL || "http://localhost:5178",
+	origin: process.env.FRONTEND_URL || "http://localhost:5173",
 	optionsSuccessStatus: 200,
 }
 app.use(cors(corsOptions))
@@ -162,7 +162,7 @@ async function initializeDirs() {
 await initializeDirs();
 
 
-// Helper function to analyze image with GPT-4 Vision
+// Helper function to analyze image with GPT-4 ё
 async function analyzeImageWithGPT(imageBuffer, newName) {
 	try {
 		const base64Image = imageBuffer.toString("base64")
@@ -270,39 +270,43 @@ app.get("/api/images", async (req, res) => {
 
 app.post("/api/generate-prompt", upload.single("image"), async (req, res) => {
 	try {
-		const { newName } = req.body;
+		const { customPrompt } = req.body;
 		const imageBuffer = req.file.buffer;
 		
 		const base64Image = imageBuffer.toString("base64");
 		
-		// Создаем начальный контекст чата
 		const messages = [
-			{
-				role: "system",
-				content: "You are an image prompt generator. When analyzing an image, create a SINGLE sentence prompt that describes the key visual elements for recreating a similar style image. Focus only on the visual composition, colors, and layout."
-			},
+			// {
+			// 	role: "developer",
+			// 	content: "You are an image prompt generator. When analyzing an image, create a prompt that describes the key visual elements for recreating a similar style image. Focus only on the visual composition, colors, and layout, pay attention to the elements of the image." ,
+			// },
 			{
 				role: "user",
 				content: [
 					{
 						type: "text",
-						text: `Generate a prompt for ${newName} following EXACTLY the same format as the example in the system message. Start with "Minimalistic ${newName} advertisement" and maintain the same descriptive style. Make sure to describe the layout, include text placement, and maintain the same level of detail. The image should be 1:1 square format.`
+						text: customPrompt
 					},
 					{
 						type: "image_url",
 						image_url: {
-							url: `data:image/jpeg;base64,${base64Image}`
+							"url": `data:image/jpeg;base64,${base64Image}`,
+							"detail": "high",
 						}
 					}
 				]
 			}
 		];
 		
+		console.log('Input prompt:', customPrompt);
+		
 		const response = await openai.chat.completions.create({
-			model: "gpt-4o",
-			messages: messages,
+			model: "chatgpt-4o-latest",
 			max_tokens: 1500,
+			messages: messages,
 		});
+		
+		console.log('Generated prompt:', response.choices[0].message.content);
 		
 		res.json({
 			success: true,
@@ -361,41 +365,37 @@ app.post("/api/regenerate-prompt", async (req, res) => {
 
 app.post("/api/generate-images", async (req, res) => {
 	try {
-		const { prompt, companyName, numImages = 4, magicPrompt = "AUTO" } = req.body;  // Изменить эту строку
+		const { prompt, numImages = 4, magicPrompt = "AUTO" } = req.body;
 		
 		// Отправляем запрос в Ideogram
-		const ideogramResponse = await generateImageWithIdeogram(null, prompt, numImages, magicPrompt);  // Изменить эту строку
+		const ideogramResponse = await generateImageWithIdeogram(null, prompt, numImages, magicPrompt);
 		console.log("Received images from Ideogram:", ideogramResponse.data.length);
 		
 		const savedImages = [];
-		const timestamp = Date.now(); // Общий timestamp для всех изображений в одной генерации
+		const timestamp = Date.now();
 		
 		// Сохраняем каждое изображение
 		for (let [index, imageData] of ideogramResponse.data.entries()) {
 			try {
 				console.log(`Processing image ${index + 1}/${ideogramResponse.data.length}`);
 				
-				// Загружаем изображение
 				const imageResponse = await axios.get(imageData.url, {
 					responseType: 'arraybuffer',
 					timeout: 30000
 				});
 				
-				// Генерируем имя файла с правильной нумерацией
 				const fileNumber = (index + 1).toString().padStart(2, '0');
-				const filename = `${companyName}-${timestamp}-${fileNumber}.png`;
+				const filename = `generated-${timestamp}-${fileNumber}.png`;
 				const filePath = path.join(GENERATED_DIR, filename);
 				
-				// Сохраняем файл
 				await fs.writeFile(filePath, imageResponse.data);
 				console.log(`Saved image to ${filePath}`);
 				
-				// Сохраняем информацию в БД
 				await saveGeneratedImage(
 					filename,
 					prompt,
 					null,
-					companyName
+					'custom' // Используем 'custom' вместо имени компании
 				);
 				
 				savedImages.push({
@@ -571,6 +571,7 @@ app.delete("/api/images/:filename", async (req, res) => {
 
 // Serve uploaded files
 app.use("/uploads", express.static(UPLOAD_DIR))
+app.use("/generated", express.static(GENERATED_DIR));
 
 // Add error handling middleware at the end
 app.use(errorHandler)
