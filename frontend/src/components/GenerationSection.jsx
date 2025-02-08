@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { Loader2, Settings2 } from "lucide-react"
 import PresetLibrary from "./PresetLibrary"
+import PromptAdditionsLibrary from "./PromptAdditionsLibrary"
 import {
   Select,
   SelectContent,
@@ -112,9 +113,14 @@ function GenerationSection({
             </div>
             
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Customize prompt or provide feedback
-              </label>
+              <div className="flex justify-between items-center">
+                <label className="block text-sm font-medium text-gray-700">
+                  Customize prompt or provide feedback
+                </label>
+                <PromptAdditionsLibrary
+                  onSelectAddition={(addition) => setUserPrompt(prev => prev + (prev ? "\n" : "") + addition)}
+                />
+              </div>
               <textarea
                 value={userPrompt}
                 onChange={(e) => setUserPrompt(e.target.value)}
