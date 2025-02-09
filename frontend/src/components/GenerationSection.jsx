@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
-import { Loader2, Settings2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import PresetLibrary from "./PresetLibrary"
 import PromptAdditionsLibrary from "./PromptAdditionsLibrary"
 import {
@@ -11,14 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
 
 function GenerationSection({
                              customPrompt,
@@ -41,54 +33,42 @@ function GenerationSection({
     <section className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold text-[#4339CA]">Enter custom prompt</h2>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          <Input
+            type="text"
+            value={numImages}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === '') {
+                setNumImages('');
+                return;
+              }
+              
+              const num = parseInt(value);
+              if (!isNaN(num)) {
+                if (num > 50) {
+                  setNumImages('50');
+                } else {
+                  setNumImages(value);
+                }
+              }
+            }}
+            className="w-[80px]"
+            placeholder="Images"
+          />
+          
+          <Select value={magicPrompt} onValueChange={setMagicPrompt}>
+            <SelectTrigger className="w-[125px]">
+              <SelectValue placeholder="Magic" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ON">Magic: On</SelectItem>
+              <SelectItem value="OFF">Magic: Off</SelectItem>
+              <SelectItem value="AUTO">Magic: Auto</SelectItem>
+            </SelectContent>
+          </Select>
+          
           <PresetLibrary onSelectPreset={(preset) => setCustomPrompt(preset)} />
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Settings2 className="h-4 w-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[400px] bg-white border-l shadow-lg p-6">
-              <SheetHeader className="pb-4">
-                <SheetTitle className="text-lg font-semibold text-gray-900">Generation Settings</SheetTitle>
-                <SheetDescription className="text-sm text-gray-500">
-                  Configure image generation parameters
-                </SheetDescription>
-              </SheetHeader>
-              <div className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Number of Images</label>
-                  <Select value={numImages.toString()} onValueChange={(value) => setNumImages(parseInt(value))}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select number of images" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num} {num === 1 ? 'image' : 'images'}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Magic Prompt</label>
-                  <Select value={magicPrompt} onValueChange={setMagicPrompt}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select magic prompt option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ON">On</SelectItem>
-                      <SelectItem value="OFF">Off</SelectItem>
-                      <SelectItem value="AUTO">Auto</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
         </div>
       </div>
       
@@ -118,7 +98,7 @@ function GenerationSection({
                   Customize prompt or provide feedback
                 </label>
                 <PromptAdditionsLibrary
-                  onSelectAddition={(addition) => setUserPrompt(prev => prev + (prev ? "\n" : "") + addition)}
+                  onSelectAddition={(addition) => setUserPrompt(addition)}
                 />
               </div>
               <textarea
@@ -212,4 +192,4 @@ function GenerationSection({
   )
 }
 
-export default GenerationSection
+export default GenerationSection;

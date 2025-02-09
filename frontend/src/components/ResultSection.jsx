@@ -2,7 +2,26 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Loader2 } from "lucide-react"
 import ImageGrid from "./ImageGrid"
 
-function ResultSection({ generatedImages, isGenerating, error, onImageDelete }) {
+function ResultSection({
+                         generatedImages,
+                         isGenerating,
+                         error,
+                         onImageDelete,
+                         generationProgress
+                       }) {
+  const renderLoadingContent = () => {
+    if (generationProgress.totalBatches <= 1) {
+      return "Generating your images...";
+    }
+    
+    return (
+      <>
+        Generating batch {generationProgress.completedBatches + 1} of {generationProgress.totalBatches}<br/>
+        {generatedImages.length} images generated so far
+      </>
+    );
+  };
+  
   return (
     <div className="h-full">
       <AnimatePresence mode="wait">
@@ -24,9 +43,9 @@ function ResultSection({ generatedImages, isGenerating, error, onImageDelete }) 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-gray-500 mt-4"
+              className="text-gray-500 mt-4 text-center"
             >
-              Generating your images...
+              {renderLoadingContent()}
             </motion.p>
           </motion.div>
         ) : generatedImages && generatedImages.length > 0 ? (
@@ -45,6 +64,16 @@ function ResultSection({ generatedImages, isGenerating, error, onImageDelete }) 
             className="h-full flex items-center justify-center"
           >
             <p className="text-gray-400 text-lg">Generated images will appear here</p>
+          </motion.div>
+        )}
+        
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 p-4 bg-red-50 text-red-600 rounded-lg"
+          >
+            {error}
           </motion.div>
         )}
       </AnimatePresence>

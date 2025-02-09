@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Check, Download, Trash2 } from "lucide-react"
+import { Check, Download, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import DownloadDialog from "@/components/DownloadDialog"
 import { useToast } from "@/hooks/use-toast"
@@ -10,7 +10,17 @@ function ImageGrid({ images, onImageDelete }) {
 	const [selectedImages, setSelectedImages] = useState(new Set())
 	const [hoveredImage, setHoveredImage] = useState(null)
 	const [isDownloadDialogOpen, setIsDownloadDialogOpen] = useState(false)
+	const [currentPage, setCurrentPage] = useState(1)
 	const { toast } = useToast()
+	
+	const ITEMS_PER_PAGE = 12; // 3x4 сетка
+	const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
+	
+	const getCurrentPageImages = () => {
+		const start = (currentPage - 1) * ITEMS_PER_PAGE;
+		const end = start + ITEMS_PER_PAGE;
+		return images.slice(start, end);
+	};
 	
 	const toggleImageSelection = (image) => {
 		const newSelected = new Set(selectedImages)
@@ -26,40 +36,28 @@ function ImageGrid({ images, onImageDelete }) {
 		try {
 			const selectedImagesArray = Array.from(selectedImages)
 			
-			// Скачиваем каждое изображение
-			for (const url of selectedImagesArray) {
-				// Получаем файл как blob
+			for (const [index, url] of selectedImagesArray.entries()) {
 				const response = await axios({
 					url: `http://localhost:3000${url}`,
 					method: 'GET',
 					responseType: 'blob',
 				})
 				
-				// Получаем индекс из имени файла
-				const fullFilename = url.split('/').pop()
-				const fileIndex = fullFilename.split('-').pop()
+				const fileNumber = (index + 1).toString().padStart(2, '0');
+				const newFilename = `${companyName}-${fileNumber}.png`
 				
-				// Создаем новое имя файла
-				const newFilename = `${companyName}-${fileIndex}`
-				
-				// Создаем URL для скачивания
 				const downloadUrl = window.URL.createObjectURL(new Blob([response.data]))
-				
-				// Создаем ссылку для скачивания
 				const link = document.createElement('a')
 				link.href = downloadUrl
 				link.setAttribute('download', newFilename)
 				
-				// Запускаем скачивание
 				document.body.appendChild(link)
 				link.click()
 				
-				// Очищаем
 				document.body.removeChild(link)
 				window.URL.revokeObjectURL(downloadUrl)
 			}
 			
-			// Очищаем выбранные изображения
 			setSelectedImages(new Set())
 			setIsDownloadDialogOpen(false)
 			
@@ -96,6 +94,19 @@ function ImageGrid({ images, onImageDelete }) {
 				)}
 			</div>
 			
+			{/* Pagination and selection info */}
+			<div className="text-sm text-gray-500 text-center space-y-1">
+				<div>
+					Showing {Math.min(ITEMS_PER_PAGE, images.length - (currentPage - 1) * ITEMS_PER_PAGE)} of {images.length} images
+				</div>
+			</div>
+			{/*	{selectedImages.size > 0 && (*/}
+			{/*		<div className="text-blue-600">*/}
+			{/*			Selected {selectedImages.size} images across all pages*/}
+			{/*		</div>*/}
+			{/*	)}*/}
+			{/*</div>*/}
+			
 			{/* Download Dialog */}
 			<DownloadDialog
 				isOpen={isDownloadDialogOpen}
@@ -105,7 +116,7 @@ function ImageGrid({ images, onImageDelete }) {
 			
 			{/* Image Grid */}
 			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-				{images.map((image, index) => (
+				{getCurrentPageImages().map((image, index) => (
 					<motion.div
 						key={image}
 						className="relative aspect-square group"
@@ -156,6 +167,33 @@ function ImageGrid({ images, onImageDelete }) {
 					</motion.div>
 				))}
 			</div>
+			
+			{/* Pagination Controls */}
+			{totalPages > 1 && (
+				<div className="flex justify-center items-center gap-4 mt-6">
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+						disabled={currentPage === 1}
+					>
+						<ChevronLeft className="h-4 w-4" />
+					</Button>
+					
+					<span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+					
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+						disabled={currentPage === totalPages}
+					>
+						<ChevronRight className="h-4 w-4" />
+					</Button>
+				</div>
+			)}
 		</div>
 	)
 }

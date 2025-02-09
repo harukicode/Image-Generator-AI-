@@ -1,3 +1,4 @@
+import { createBatches, generateAllBatches } from '@/utils/batchImageGeneration.jsx'
 import { useState } from "react"
 import { motion } from "framer-motion"
 import axios from "axios"
@@ -20,6 +21,12 @@ function App() {
   const [userPrompt, setUserPrompt] = useState("")
   const [numImages, setNumImages] = useState(4)
   const [magicPrompt, setMagicPrompt] = useState("AUTO")
+  
+  const [generationProgress, setGenerationProgress] = useState({
+    totalBatches: 0,
+    completedBatches: 0,
+    isGenerating: false
+  });
   
   const handleReset = () => {
     setCurrentPrompt("")
@@ -89,47 +96,67 @@ function App() {
   }
   
   const handleGenerate = async () => {
-    setIsGeneratingImages(true)
-    setError(null)
+    if (!currentPrompt || !numImages) {
+      setError("Please provide a prompt and number of images");
+      return;
+    }
+    
+    setIsGeneratingImages(true);
+    setError(null);
+    setGeneratedImages([]);
     
     try {
-      if (!currentPrompt) {
-        throw new Error("No prompt available")
-      }
+      const batches = createBatches(parseInt(numImages));
       
-      const response = await axios.post("http://localhost:3000/api/generate-images", {
+      setGenerationProgress({
+        totalBatches: batches.length,
+        completedBatches: 0,
+        isGenerating: true
+      });
+      
+      const result = await generateAllBatches({
+        batches,
         prompt: currentPrompt,
-        numImages: numImages,
-        magicPrompt: magicPrompt
-      })
+        magicPrompt,
+        onBatchComplete: ({ completedBatches, totalBatches, newImages, allImages }) => {
+          setGenerationProgress(prev => ({
+            ...prev,
+            completedBatches
+          }));
+          setGeneratedImages(allImages); // Обновляем изображения по мере их генерации
+        },
+        onError: (error, completedBatches) => {
+          setError(`Error during batch ${completedBatches + 1}: ${error.message}`);
+          // Продолжаем показывать уже сгенерированные изображения
+        }
+      });
       
-      if (response.data.success) {
-        setGeneratedImages(response.data.imageUrls)
-      } else {
-        throw new Error(response.data.error || "Image generation failed")
-      }
     } catch (err) {
-      console.error("Image generation error:", err)
-      setError(err.response?.data?.error || err.message)
-      setGeneratedImages([])
+      console.error("Image generation error:", err);
+      setError(err.message || "Failed to generate images");
     } finally {
-      setIsGeneratingImages(false)
+      setIsGeneratingImages(false);
+      setGenerationProgress(prev => ({
+        ...prev,
+        isGenerating: false
+      }));
     }
-  }
+  };
   
-  const handleImageDelete = async (imageUrl) => {
+  const handleImageDelete = async (image) => {
     try {
-      const filename = imageUrl.split('/').pop()
-      const response = await axios.delete(`http://localhost:3000/api/generated-images/${filename}`)
+      const filename = image.split('/').pop();
+      const response = await axios.delete(`http://localhost:3000/api/generated-images/${filename}`);
       
       if (response.data.success) {
-        setGeneratedImages(generatedImages.filter((img) => img !== imageUrl))
+        setGeneratedImages(prevImages => prevImages.filter(img => img !== image));
       }
     } catch (error) {
-      console.error("Failed to delete image:", error)
-      setError("Failed to delete image. Please try again.")
+      console.error('Error deleting image:', error);
+      setError("Failed to delete image. Please try again.");
     }
-  }
+  };
+  
   
   return (
     <motion.div
@@ -196,6 +223,7 @@ function App() {
                   isGenerating={isGeneratingImages}
                   error={error}
                   onImageDelete={handleImageDelete}
+                  generationProgress={generationProgress}
                 />
               </motion.div>
             </motion.div>

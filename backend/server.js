@@ -367,7 +367,6 @@ app.post("/api/generate-images", async (req, res) => {
 	try {
 		const { prompt, numImages = 4, magicPrompt = "AUTO" } = req.body;
 		
-		// Отправляем запрос в Ideogram
 		const ideogramResponse = await generateImageWithIdeogram(null, prompt, numImages, magicPrompt);
 		console.log("Received images from Ideogram:", ideogramResponse.data.length);
 		
@@ -377,8 +376,6 @@ app.post("/api/generate-images", async (req, res) => {
 		// Сохраняем каждое изображение
 		for (let [index, imageData] of ideogramResponse.data.entries()) {
 			try {
-				console.log(`Processing image ${index + 1}/${ideogramResponse.data.length}`);
-				
 				const imageResponse = await axios.get(imageData.url, {
 					responseType: 'arraybuffer',
 					timeout: 30000
@@ -395,13 +392,10 @@ app.post("/api/generate-images", async (req, res) => {
 					filename,
 					prompt,
 					null,
-					'custom' // Используем 'custom' вместо имени компании
+					'custom'
 				);
 				
-				savedImages.push({
-					url: `/generated/${filename}`,
-					filename: filename
-				});
+				savedImages.push(`/generated/${filename}`);
 			} catch (error) {
 				console.error(`Error saving image ${index}:`, error);
 			}
@@ -413,7 +407,7 @@ app.post("/api/generate-images", async (req, res) => {
 		
 		res.json({
 			success: true,
-			imageUrls: savedImages.map(img => img.url)
+			imageUrls: savedImages
 		});
 		
 	} catch (error) {
