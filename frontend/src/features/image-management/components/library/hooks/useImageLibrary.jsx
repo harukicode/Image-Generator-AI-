@@ -5,18 +5,23 @@ import axios from "axios";
 export const useImageLibrary = (apiEndpoint) => {
 	const [images, setImages] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState(null);
 	const { toast } = useToast();
-	
-	useEffect(() => {
-		fetchImages();
-	}, []);
 	
 	const fetchImages = async () => {
 		try {
 			setIsLoading(true);
+			setError(null);
 			const response = await axios.get(apiEndpoint);
-			setImages(response.data.images);
+			
+			if (response.data.success) {
+				setImages(response.data.data.images || []);
+			} else {
+				throw new Error(response.data.error || 'Failed to fetch images');
+			}
 		} catch (error) {
+			console.error('Error fetching images:', error);
+			setError(error.message);
 			toast({
 				title: "Error",
 				description: "Failed to fetch images",
@@ -27,6 +32,10 @@ export const useImageLibrary = (apiEndpoint) => {
 		}
 	};
 	
+	useEffect(() => {
+		fetchImages();
+	}, []);
+	
 	const deleteImage = async (image) => {
 		try {
 			await axios.delete(`${apiEndpoint}/${image.filename}`);
@@ -36,15 +45,12 @@ export const useImageLibrary = (apiEndpoint) => {
 				description: "Image deleted successfully",
 			});
 		} catch (error) {
+			console.error('Error deleting image:', error);
 			toast({
 				title: "Error",
 				description: error.response?.data?.error || "Failed to delete image",
 				variant: "destructive",
 			});
-			
-			if (error.response?.status === 404) {
-				setImages(prevImages => prevImages.filter(img => img.id !== image.id));
-			}
 		}
 	};
 	
@@ -55,12 +61,25 @@ export const useImageLibrary = (apiEndpoint) => {
 			formData.append("image", file);
 			
 			try {
-				await axios.post("http://localhost:3000/api/upload", formData, {
-					headers: { "Content-Type": "multipart/form-data" },
-				});
-				// После успешной загрузки обновляем список изображений
-				await fetchImages();
+				const response = await axios.post(
+					"http://localhost:3000/api/upload",
+					formData,
+					{
+						headers: { "Content-Type": "multipart/form-data" },
+					}
+				);
+				
+				if (response.data.success) {
+					await fetchImages();
+					toast({
+						title: "Success",
+						description: "Image uploaded successfully",
+					});
+				} else {
+					throw new Error(response.data.error || 'Upload failed');
+				}
 			} catch (error) {
+				console.error('Error uploading image:', error);
 				toast({
 					title: "Error",
 					description: "Failed to upload image",
@@ -72,6 +91,8 @@ export const useImageLibrary = (apiEndpoint) => {
 	
 	return {
 		images,
+		isLoading,
+		error,
 		deleteImage,
 		handleImageUpload,
 		fetchImages,

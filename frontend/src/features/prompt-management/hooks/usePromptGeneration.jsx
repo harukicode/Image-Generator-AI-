@@ -9,7 +9,6 @@ export const usePromptGeneration = () => {
 	const [userPrompt, setUserPrompt] = useState("")
 	const [customPrompt, setCustomPrompt] = useState("")
 	
-	
 	const reset = () => {
 		setCurrentPrompt("")
 		setError(null)
@@ -28,14 +27,17 @@ export const usePromptGeneration = () => {
 		setChatContext(null)
 		
 		try {
-			const data = await promptApi.generatePrompt(image, customPrompt)
-			if (data.success) {
-				setCurrentPrompt(data.prompt)
-				setChatContext(data.context)
+			const response = await promptApi.generatePrompt(image, customPrompt)
+			console.log('Generate prompt response:', response); // Добавляем лог
+			
+			if (response.success) {
+				setCurrentPrompt(response.data.prompt)
+				setChatContext(response.data.context)
 			} else {
-				throw new Error(data.error || "Prompt generation failed")
+				throw new Error(response.error || "Prompt generation failed")
 			}
 		} catch (err) {
+			console.error('Generate prompt error:', err); // Добавляем лог ошибки
 			setError(err.message)
 			throw err
 		} finally {
@@ -48,14 +50,17 @@ export const usePromptGeneration = () => {
 		setError(null)
 		
 		try {
-			const data = await promptApi.regeneratePrompt(chatContext, userPrompt)
-			if (data.success) {
-				setCurrentPrompt(data.prompt)
-				setChatContext(data.context)
+			const response = await promptApi.regeneratePrompt(chatContext, userPrompt)
+			console.log('Regenerate prompt response:', response); // Добавляем лог
+			
+			if (response.success) {
+				setCurrentPrompt(response.data.prompt)
+				setChatContext(response.data.context)
 			} else {
-				throw new Error(data.error || "Prompt regeneration failed")
+				throw new Error(response.error || "Prompt regeneration failed")
 			}
 		} catch (err) {
+			console.error('Regenerate prompt error:', err); // Добавляем лог ошибки
 			setError(err.message)
 			throw err
 		} finally {

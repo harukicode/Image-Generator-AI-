@@ -1,7 +1,7 @@
-import LibraryBase from '@/features/prompt-management/components/presets/LibraryBase.jsx'
-import { BookPlus } from 'lucide-react'
+import { BookPlus } from 'lucide-react';
+import LibraryBase from './LibraryBase.jsx';
 
- const PromptAdditionsLibrary = ({ onSelectAddition }) => {
+const PromptAdditionsLibrary = ({ onSelectAddition }) => {
 	const config = {
 		itemName: 'Addition',
 		title: 'Prompt Additions',
@@ -12,12 +12,12 @@ import { BookPlus } from 'lucide-react'
 		contentLabel: 'Addition Content',
 		emptyIcon: BookPlus,
 		emptyMessage: 'No additions yet. Click "Add New" to create your first addition.',
+		type: 'additions'
 	};
 	
 	return (
 		<LibraryBase
 			config={config}
-			storageKey="promptAdditions"
 			onSelect={onSelectAddition}
 			buttonIcon={BookPlus}
 		/>

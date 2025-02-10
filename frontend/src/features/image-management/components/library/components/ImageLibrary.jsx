@@ -12,7 +12,7 @@ export const ImageLibrary = ({ onSelectImage }) => {
   const [hoveredImage, setHoveredImage] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   
-  const { images, deleteImage, handleImageUpload } = useImageLibrary("http://localhost:3000/api/images");
+  const { images = [], deleteImage, handleImageUpload } = useImageLibrary("http://localhost:3000/api/images");
   
   const renderOverlay = (image) => (
     <ImageOverlay isVisible={hoveredImage === image.id}>

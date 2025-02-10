@@ -1,27 +1,24 @@
 import axios from 'axios';
 
-// Функция для разбиения на батчи
 export function createBatches(totalImages) {
-	const batchSize = 8;
+	const MAX_BATCH_SIZE = 8;
 	const batches = [];
 	
-	const fullBatches = Math.floor(totalImages / batchSize);
-	const remainder = totalImages % batchSize;
+	const fullBatches = Math.floor(totalImages / MAX_BATCH_SIZE);
+	const remainder = totalImages % MAX_BATCH_SIZE;
 	
-	// Добавляем полные батчи
 	for (let i = 0; i < fullBatches; i++) {
-		batches.push(batchSize);
+		batches.push(MAX_BATCH_SIZE);
 	}
 	
-	// Добавляем оставшиеся изображения, если есть
 	if (remainder > 0) {
 		batches.push(remainder);
 	}
 	
+	console.log('Created batches:', { totalImages, batches });
 	return batches;
 }
 
-// Функция для генерации всех батчей
 export async function generateAllBatches({
 	                                         batches,
 	                                         prompt,
@@ -34,26 +31,29 @@ export async function generateAllBatches({
 	
 	for (const batchSize of batches) {
 		try {
-			// Отправляем запрос на генерацию текущего батча
-			const response = await axios.post("http://localhost:3000/api/generate-images", {
-				prompt,
-				numImages: batchSize,
-				magicPrompt
-			}, {
-				headers: {
-					'Content-Type': 'application/json',
-					'Accept': 'application/json'
+			console.log('Processing batch:', { batchSize, completedBatches: completedBatches + 1, totalBatches: batches.length });
+			
+			const response = await axios.post(
+				"http://localhost:3000/api/generate-images",
+				{
+					prompt,
+					numImages: batchSize,
+					magicPrompt
+				},
+				{
+					headers: {
+						'Content-Type': 'application/json',
+						'Accept': 'application/json'
+					}
 				}
-			});
+			);
 			
 			if (response.data && response.data.success) {
-				// Добавляем новые URL к общему списку
-				const newImages = response.data.imageUrls || [];
+				const newImages = response.data.data.imageUrls || [];
 				allGeneratedImages.push(...newImages);
 				
 				completedBatches++;
 				
-				// Вызываем callback с информацией о прогрессе
 				if (onBatchComplete) {
 					onBatchComplete({
 						completedBatches,

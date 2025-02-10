@@ -43,9 +43,7 @@ function App() {
   }
   
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+    <div
       className="min-h-screen bg-gradient-to-br from-[#F3F0FF] to-[#E8E3FF] p-8"
     >
       <Header />
@@ -57,24 +55,19 @@ function App() {
         </TabsList>
         <TabsContent value="generator">
           <div className="flex flex-col lg:flex-row gap-8">
-            <motion.div
+            <div
               className="flex-1 space-y-8"
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.5 }}
             >
-              <motion.div
+              <div
                 className="bg-white rounded-2xl shadow-sm p-8 hover:shadow-md transition-shadow duration-300"
-                whileHover={{ y: -2 }}
               >
                 <ImageUploadSection
                   setUploadedImage={setUploadedImage}
                   onReset={handleReset}
                 />
-              </motion.div>
-              <motion.div
+              </div>
+              <div
                 className="bg-white rounded-2xl shadow-sm p-8 hover:shadow-md transition-shadow duration-300"
-                whileHover={{ y: -2 }}
               >
                 <GenerationSection
                   customPrompt={customPrompt}
@@ -93,8 +86,8 @@ function App() {
                   magicPrompt={magicPrompt}
                   setMagicPrompt={setMagicPrompt}
                 />
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
             <motion.div
               className="flex-1"
               initial={{ x: 50, opacity: 0 }}
@@ -103,7 +96,6 @@ function App() {
             >
               <motion.div
                 className="bg-white rounded-2xl shadow-sm p-8 h-full hover:shadow-md transition-shadow duration-300"
-                whileHover={{ y: -2 }}
               >
                 <ResultSection
                   generatedImages={generatedImages}
@@ -120,7 +112,7 @@ function App() {
           <ImageLibraryPage />
         </TabsContent>
       </Tabs>
-    </motion.div>
+    </div>
   )
 }
 

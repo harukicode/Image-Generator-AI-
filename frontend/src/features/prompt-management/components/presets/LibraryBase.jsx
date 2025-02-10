@@ -1,36 +1,44 @@
-import PresetForm from '@/features/prompt-management/components/presets/PresetForm.jsx'
-import ActionButtons from '@/features/prompt-management/components/presets/ui/ActionButtons.jsx'
-import { useLocalStorage } from '@/features/prompt-management/hooks/UseLocalStorage.jsx'
-import { Button } from '@/shared/ui/button.jsx'
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/shared/ui/dialog.jsx'
-import { ScrollArea } from '@/shared/ui/scroll-area.jsx'
-import { AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
-import { Plus } from 'lucide-react'
-import  EmptyState  from './ui/EmptyState.jsx'
-import {motion} from 'framer-motion'
+import PresetForm from '@/features/prompt-management/components/presets/PresetForm.jsx';
+import ActionButtons from '@/features/prompt-management/components/presets/ui/ActionButtons.jsx';
+import { Button } from '@/shared/ui/button.jsx';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/shared/ui/dialog.jsx';
+import { ScrollArea } from '@/shared/ui/scroll-area.jsx';
+import { AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { Plus, Loader2 } from 'lucide-react';
+import EmptyState from './ui/EmptyState.jsx';
+import { motion } from 'framer-motion';
+import { usePromptsApi } from '../../hooks/usePromptsApi.js';
 
 const LibraryBase = ({
-	                            config,
-	                            storageKey,
-	                            onSelect,
-	                            buttonIcon: Icon,
-                            }) => {
+	                     config,
+	                     onSelect,
+	                     buttonIcon: Icon,
+                     }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isAdding, setIsAdding] = useState(false);
 	const [editingItem, setEditingItem] = useState(null);
 	
 	const {
 		items,
+		isLoading,
 		addItem,
 		updateItem,
-		deleteItem,
-	} = useLocalStorage(storageKey);
+		deleteItem
+	} = usePromptsApi(config.type);
 	
 	const handleSelect = (item) => {
 		onSelect(item[config.contentField]);
 		setIsOpen(false);
 	};
+	
+	if (isLoading) {
+		return (
+			<div className="flex items-center justify-center p-4">
+				<Loader2 className="w-6 h-6 animate-spin" />
+			</div>
+		);
+	}
 	
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -63,13 +71,17 @@ const LibraryBase = ({
 							<PresetForm
 								key="form"
 								item={editingItem}
-								onSave={(item) => {
-									if (editingItem) {
-										updateItem(item);
-										setEditingItem(null);
-									} else {
-										addItem(item);
-										setIsAdding(false);
+								onSave={async (item) => {
+									try {
+										if (editingItem) {
+											await updateItem({ ...item, id: editingItem.id });
+											setEditingItem(null);
+										} else {
+											await addItem(item);
+											setIsAdding(false);
+										}
+									} catch (error) {
+										console.error('Failed to save item:', error);
 									}
 								}}
 								onCancel={() => {
@@ -98,7 +110,13 @@ const LibraryBase = ({
 											<ActionButtons
 												onSelect={() => handleSelect(item)}
 												onEdit={() => setEditingItem(item)}
-												onDelete={() => deleteItem(item.id)}
+												onDelete={async () => {
+													try {
+														await deleteItem(item.id);
+													} catch (error) {
+														console.error('Failed to delete item:', error);
+													}
+												}}
 											/>
 										</div>
 									</div>
