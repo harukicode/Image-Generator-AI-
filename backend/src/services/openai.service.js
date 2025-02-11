@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { config } from '../config/environment.js';
+import { chatHistoryRepository } from '../db/models/ChatHistoryRepository.js';
 
 class OpenAIService {
 	constructor() {
@@ -10,21 +11,20 @@ class OpenAIService {
 		this.client = new OpenAI({
 			apiKey: config.openaiApiKey
 		});
+		
+		this.defaultContextSize = 20;
 	}
 	
-	async generatePrompt(imageBuffer, customPrompt) {
+	async generatePrompt(imageBuffer, customPrompt, contextSize = this.defaultContextSize) {
 		try {
-			console.log('OpenAIService - Generating prompt, custom prompt:', customPrompt);
+			console.log('OpenAIService - Generating prompt with context size:', contextSize);
 			
 			const base64Image = imageBuffer.toString('base64');
 			
-			const messages = [{
+			const userMessage = {
 				role: "user",
 				content: [
-					{
-						type: "text",
-						text: customPrompt
-					},
+					{ type: "text", text: customPrompt },
 					{
 						type: "image_url",
 						image_url: {
@@ -33,63 +33,82 @@ class OpenAIService {
 						}
 					}
 				]
-			}];
+			};
 			
-			console.log('OpenAIService - Sending request to OpenAI');
+			await chatHistoryRepository.saveMessage(userMessage.role, userMessage.content);
+			
+			const chatHistory = await chatHistoryRepository.getLastMessages(contextSize);
+			
+			console.log('OpenAIService - Sending request with context length:', chatHistory.length);
 			
 			const response = await this.client.chat.completions.create({
 				model: "chatgpt-4o-latest",
-				messages: messages,
+				messages: chatHistory,
 				max_tokens: 5000,
 			});
 			
-			console.log('OpenAIService - Received response from OpenAI');
+			const assistantMessage = response.choices[0].message;
+			await chatHistoryRepository.saveMessage(assistantMessage.role, assistantMessage.content);
+			
+			const updatedHistory = await chatHistoryRepository.getLastMessages(contextSize);
 			
 			return {
-				prompt: response.choices[0].message.content,
-				context: messages.concat(response.choices[0].message)
+				prompt: assistantMessage.content,
+				context: updatedHistory,
+				totalMessages: await chatHistoryRepository.getMessagesCount()
 			};
 		} catch (error) {
 			console.error('OpenAIService - Error:', error);
-			
-
-			if (error.response) {
-				console.error('OpenAI API Error Response:', {
-					status: error.response.status,
-					data: error.response.data
-				});
-			}
-			
 			throw new Error('Failed to generate prompt with OpenAI: ' + error.message);
 		}
 	}
 	
-	async regeneratePrompt(context, userPrompt) {
+	async regeneratePrompt(context, userPrompt, contextSize = this.defaultContextSize) {
 		try {
-			console.log('OpenAIService - Regenerating prompt');
+			console.log('OpenAIService - Regenerating prompt with context size:', contextSize);
 			
-			const messages = [...context];
 			if (userPrompt) {
-				messages.push({
-					role: "user",
-					content: userPrompt
-				});
+				await chatHistoryRepository.saveMessage("user", userPrompt);
 			}
+			
+			const chatHistory = await chatHistoryRepository.getLastMessages(contextSize);
 			
 			const response = await this.client.chat.completions.create({
 				model: "chatgpt-4o-latest",
-				messages: messages,
+				messages: chatHistory,
 				max_tokens: 5000,
 			});
 			
+			const assistantMessage = response.choices[0].message;
+			await chatHistoryRepository.saveMessage(assistantMessage.role, assistantMessage.content);
+			
+			const updatedHistory = await chatHistoryRepository.getLastMessages(contextSize);
+			
 			return {
-				prompt: response.choices[0].message.content,
-				context: messages.concat(response.choices[0].message)
+				prompt: assistantMessage.content,
+				context: updatedHistory,
+				totalMessages: await chatHistoryRepository.getMessagesCount()
 			};
 		} catch (error) {
 			console.error('OpenAIService - Error:', error);
 			throw new Error('Failed to regenerate prompt with OpenAI: ' + error.message);
 		}
+	}
+	
+	async getAllHistory() {
+		return await chatHistoryRepository.getAllMessages();
+	}
+	
+	async getHistoryCount() {
+		return await chatHistoryRepository.getMessagesCount();
+	}
+	
+	async clearChat() {
+		await chatHistoryRepository.clearHistory();
+	}
+	
+	setDefaultContextSize(size) {
+		this.defaultContextSize = size;
 	}
 }
 

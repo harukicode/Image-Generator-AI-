@@ -1,9 +1,9 @@
-import { Download } from "lucide-react";
-import { Button } from "@/shared/ui/button.jsx";
-import { ImageCard } from "./ImageCard";
-import { Pagination } from "./Pagination";
-import { useImageGrid } from "../../hooks/useImageGrid";
-import  DownloadDialog  from "../ui/download-dialog.jsx";
+import { Download } from "lucide-react"
+import { Button } from "@/shared/ui/button.jsx"
+import { ImageCard } from "./ImageCard"
+import { Pagination } from "./Pagination"
+import { useImageGrid } from "../../hooks/useImageGrid"
+import DownloadDialog from "../ui/download-dialog.jsx"
 
 export const ImageGrid = ({ images, onImageDelete }) => {
 	const {
@@ -18,19 +18,14 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 		setIsDownloadDialogOpen,
 		setCurrentPage,
 		downloadSelectedImages,
-	} = useImageGrid(images, onImageDelete);
+	} = useImageGrid(images, onImageDelete)
 	
 	return (
 		<div className="space-y-4">
-			<div className="flex justify-between items-center">
-				<div className="text-sm text-gray-500">
-					{selectedImages.size} images selected
-				</div>
+			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+				<div className="text-sm text-gray-500">{selectedImages.size} images selected</div>
 				{selectedImages.size > 0 && (
-					<Button
-						onClick={() => setIsDownloadDialogOpen(true)}
-						className="bg-blue-600 hover:bg-blue-700 text-white"
-					>
+					<Button onClick={() => setIsDownloadDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
 						<Download className="h-4 w-4 mr-2" />
 						Download Selected ({selectedImages.size})
 					</Button>
@@ -49,7 +44,7 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 				onDownload={downloadSelectedImages}
 			/>
 			
-			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
 				{getCurrentPageImages().map((image, index) => (
 					<ImageCard
 						key={image}
@@ -64,12 +59,8 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 				))}
 			</div>
 			
-			<Pagination
-				currentPage={currentPage}
-				totalPages={totalPages}
-				onPageChange={setCurrentPage}
-			/>
+			<Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
 		</div>
-	);
-};
+	)
+}
 
