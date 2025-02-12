@@ -2,9 +2,16 @@ import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 
-export const useImageUpload = ({ onUpload, onReset }) => {
+export const useImageUpload = ({ onUpload, onReset, uploadedImage }) => {
 	const [preview, setPreview] = useState(null);
 	const [isDragActive, setIsDragActive] = useState(false);
+	
+	// Устанавливаем начальное превью из пропса
+	useEffect(() => {
+		if (uploadedImage && !preview) {
+			setPreview(URL.createObjectURL(uploadedImage));
+		}
+	}, [uploadedImage]);
 	
 	const handleUpload = async (file) => {
 		const formData = new FormData();
@@ -16,7 +23,8 @@ export const useImageUpload = ({ onUpload, onReset }) => {
 				formData,
 				{ headers: { "Content-Type": "multipart/form-data" } }
 			);
-			setPreview(`http://localhost:3000${response.data.imageUrl}`);
+			const imageUrl = `http://localhost:3000${response.data.imageUrl}`;
+			setPreview(imageUrl);
 			onUpload(file);
 		} catch (error) {
 			console.error("Failed to upload image:", error);
@@ -24,7 +32,6 @@ export const useImageUpload = ({ onUpload, onReset }) => {
 	};
 	
 	const handleSelectFromLibrary = async (imageUrl) => {
-		onReset();
 		setPreview(imageUrl);
 		try {
 			const response = await axios.get(imageUrl, { responseType: "blob" });

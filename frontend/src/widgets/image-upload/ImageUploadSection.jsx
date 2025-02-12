@@ -3,12 +3,12 @@ import { DropZone } from "./DropZone"
 import { useImageUpload } from "./hooks/useImageUpload"
 import { Button } from "@/shared/ui/button"
 
-const ImageUploadSection = ({ setUploadedImage, onReset }) => {
+const ImageUploadSection = ({ setUploadedImage, onReset, uploadedImage }) => {
   const { preview, isDragActive, getRootProps, getInputProps, handleSelectFromLibrary, resetImage } = useImageUpload({
     onUpload: setUploadedImage,
     onReset,
-  })
-  
+    uploadedImage,
+  });
   
   return (
     <section className="space-y-3 sm:space-y-4">
@@ -39,4 +39,3 @@ const ImageUploadSection = ({ setUploadedImage, onReset }) => {
 }
 
 export default ImageUploadSection
-
