@@ -5,12 +5,12 @@ import { ResponseFormatter } from '../utils/asyncHandler.js';
 export const GenerationController = {
 	async generatePrompt(req, res) {
 		try {
+			const { customPrompt, contextSize } = req.body;
 			console.log('GeneratePrompt - Request received:', {
-				customPrompt: req.body.customPrompt,
+				customPrompt,
+				contextSize,
 				hasFile: !!req.file
 			});
-			
-			const { customPrompt } = req.body;
 			
 			if (!req.file) {
 				return res.status(400).json({
@@ -30,12 +30,14 @@ export const GenerationController = {
 			
 			const result = await openAIService.generatePrompt(
 				imageBuffer,
-				customPrompt
+				customPrompt,
+				parseInt(contextSize) || undefined
 			);
 			
 			console.log('GeneratePrompt - Success:', {
 				promptLength: result.prompt.length,
-				hasContext: !!result.context
+				hasContext: !!result.context,
+				contextSize: result.context.length
 			});
 			
 			res.json({

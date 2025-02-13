@@ -17,7 +17,11 @@ class OpenAIService {
 	
 	async generatePrompt(imageBuffer, customPrompt, contextSize = this.defaultContextSize) {
 		try {
-			console.log('OpenAIService - Generating prompt with context size:', contextSize);
+			console.log('OpenAIService - Starting prompt generation:', {
+				customPrompt,
+				requestedContextSize: contextSize,
+				defaultContextSize: this.defaultContextSize
+			});
 			
 			const base64Image = imageBuffer.toString('base64');
 			
@@ -36,10 +40,19 @@ class OpenAIService {
 			};
 			
 			await chatHistoryRepository.saveMessage(userMessage.role, userMessage.content);
-			
 			const chatHistory = await chatHistoryRepository.getLastMessages(contextSize);
 			
-			console.log('OpenAIService - Sending request with context length:', chatHistory.length);
+			console.log('OpenAIService - Chat history retrieved:', {
+				requestedMessages: contextSize,
+				actualMessages: chatHistory.length,
+				messages: chatHistory.map(msg => ({
+					role: msg.role,
+					contentType: Array.isArray(msg.content) ? 'multipart' : 'text',
+					text: Array.isArray(msg.content)
+						? msg.content.find(part => part.type === 'text')?.text
+						: msg.content
+				}))
+			});
 			
 			const response = await this.client.chat.completions.create({
 				model: "gpt-4o",
@@ -51,6 +64,11 @@ class OpenAIService {
 			await chatHistoryRepository.saveMessage(assistantMessage.role, assistantMessage.content);
 			
 			const updatedHistory = await chatHistoryRepository.getLastMessages(contextSize);
+			
+			console.log('OpenAIService - Response generated:', {
+				responseLength: assistantMessage.content.length,
+				updatedContextSize: updatedHistory.length
+			});
 			
 			return {
 				prompt: assistantMessage.content,

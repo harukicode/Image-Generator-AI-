@@ -34,7 +34,7 @@ export const usePromptGeneration = () => {
 		try {
 			const processedPrompt = replaceCompanyName(customPrompt, companyName)
 			
-			const response = await promptApi.generatePrompt(image, processedPrompt)
+			const response = await promptApi.generatePrompt(image, processedPrompt, contextSize) // Добавляем contextSize
 			
 			if (response.success) {
 				setCurrentPrompt(response.data.prompt)
@@ -50,6 +50,7 @@ export const usePromptGeneration = () => {
 			setIsGeneratingPrompt(false)
 		}
 	}
+	
 	
 	const regeneratePrompt = async (userPrompt, contextSize, companyName) => {
 		setIsGeneratingPrompt(true)
