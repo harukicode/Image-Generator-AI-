@@ -24,6 +24,8 @@ const GenerationSection = ({
                              contextSize,
                              setContextSize,
                              reset: resetPrompt,
+                              companyName,
+                              setCompanyName,
                            }) => {
   const handleReset = () => {
     setNumImages(4);
@@ -64,6 +66,8 @@ const GenerationSection = ({
           setContextSize={setContextSize}
           onReset={handleReset}
           showResetButton={false}
+          companyName={companyName}
+          setCompanyName={setCompanyName}
         />
       </div>
       

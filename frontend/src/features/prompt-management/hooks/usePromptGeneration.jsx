@@ -9,6 +9,7 @@ export const usePromptGeneration = () => {
 	const [userPrompt, setUserPrompt] = useState("")
 	const [customPrompt, setCustomPrompt] = useState("")
 	
+	
 	const reset = () => {
 		setCurrentPrompt("")
 		setError(null)
@@ -16,7 +17,12 @@ export const usePromptGeneration = () => {
 		setUserPrompt("")
 	}
 	
-	const generatePrompt = async (image) => {
+	const replaceCompanyName = (prompt, companyName) => {
+		if (!companyName) return prompt;
+		return prompt.replace(/XYZ/g, companyName);
+	}
+	
+	const generatePrompt = async (image, contextSize, companyName) => {
 		if (!image || !customPrompt) {
 			throw new Error("Please provide both an image and a prompt")
 		}
@@ -26,8 +32,9 @@ export const usePromptGeneration = () => {
 		setChatContext(null)
 		
 		try {
-			const response = await promptApi.generatePrompt(image, customPrompt)
-			console.log('Generate prompt response:', response); // Добавляем лог
+			const processedPrompt = replaceCompanyName(customPrompt, companyName)
+			
+			const response = await promptApi.generatePrompt(image, processedPrompt)
 			
 			if (response.success) {
 				setCurrentPrompt(response.data.prompt)
@@ -36,7 +43,7 @@ export const usePromptGeneration = () => {
 				throw new Error(response.error || "Prompt generation failed")
 			}
 		} catch (err) {
-			console.error('Generate prompt error:', err); // Добавляем лог ошибки
+			console.error('Generate prompt error:', err)
 			setError(err.message)
 			throw err
 		} finally {
@@ -44,13 +51,14 @@ export const usePromptGeneration = () => {
 		}
 	}
 	
-	const regeneratePrompt = async () => {
+	const regeneratePrompt = async (userPrompt, contextSize, companyName) => {
 		setIsGeneratingPrompt(true)
 		setError(null)
 		
 		try {
-			const response = await promptApi.regeneratePrompt(chatContext, userPrompt)
-			console.log('Regenerate prompt response:', response); // Добавляем лог
+			const processedUserPrompt = replaceCompanyName(userPrompt, companyName)
+			
+			const response = await promptApi.regeneratePrompt(chatContext, processedUserPrompt)
 			
 			if (response.success) {
 				setCurrentPrompt(response.data.prompt)
@@ -59,7 +67,7 @@ export const usePromptGeneration = () => {
 				throw new Error(response.error || "Prompt regeneration failed")
 			}
 		} catch (err) {
-			console.error('Regenerate prompt error:', err); // Добавляем лог ошибки
+			console.error('Regenerate prompt error:', err)
 			setError(err.message)
 			throw err
 		} finally {

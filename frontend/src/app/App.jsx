@@ -12,6 +12,7 @@ import { Toaster } from "../shared/ui/toaster.jsx"
 function App() {
   const [uploadedImage, setUploadedImage] = useState(null)
   const [contextSize, setContextSize] = useState(20)
+  const [companyName, setCompanyName] = useState("");
   
   const {
     currentPrompt,
@@ -39,11 +40,11 @@ function App() {
   } = useImageGeneration()
   
   const handleStartPromptGeneration = () => {
-    generatePrompt(uploadedImage, contextSize)
+    generatePrompt(uploadedImage, contextSize, companyName)
   }
   
   const handleRegeneratePrompt = () => {
-    regeneratePrompt(userPrompt, contextSize)
+    regeneratePrompt(userPrompt, contextSize, companyName)
   }
   
   const handleReset = () => {
@@ -53,6 +54,8 @@ function App() {
       resetPrompt()
     }
   }
+  
+
   
   return (
     <>
@@ -92,6 +95,8 @@ function App() {
                     contextSize={contextSize}
                     setContextSize={setContextSize}
                     reset={resetPrompt}
+                    setCompanyName={setCompanyName}
+                    companyName={companyName}
                   />
                 </div>
               </div>

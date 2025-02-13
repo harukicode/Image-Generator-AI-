@@ -12,6 +12,8 @@ const GenerationControls = ({
 	                            setCustomPrompt,
 	                            contextSize = 20,
 	                            setContextSize,
+	                            companyName,
+	                            setCompanyName,
                             }) => {
 	return (
 		<div className={`flex flex-wrap items-center gap-2 ${className}`}>
@@ -20,6 +22,8 @@ const GenerationControls = ({
 					type="text"
 					placeholder="Company name"
 					className="w-[140px]"
+					value={companyName}
+					onChange={(e) => setCompanyName(e.target.value)}
 				/>
 				<NumImagesInput value={numImages} onChange={setNumImages} />
 				<ContextSizeInput value={contextSize} onChange={setContextSize} />
