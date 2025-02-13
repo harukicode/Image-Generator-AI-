@@ -2,6 +2,8 @@ import GenerationButtons from "@/features/prompt-management/components/Generatio
 import GenerationControls from "@/features/prompt-management/components/GenerationSection/GenerationControls.jsx"
 import PromptInput from "@/features/prompt-management/components/GenerationSection/PromptInput.jsx"
 import PromptAdditionsLibrary from "@/features/prompt-management/components/presets/PromptAdditionsLibrary.jsx"
+import { Button } from "@/shared/ui/button"
+import { RotateCcw } from "lucide-react"
 
 const GenerationSection = ({
                              customPrompt,
@@ -24,7 +26,9 @@ const GenerationSection = ({
                              reset: resetPrompt,
                            }) => {
   const handleReset = () => {
-    setCustomPrompt('');
+    setNumImages(4);
+    setContextSize(20);
+    setMagicPrompt('AUTO');
     setUserPrompt('');
     if (resetPrompt) {
       resetPrompt();
@@ -32,11 +36,25 @@ const GenerationSection = ({
   };
   
   return (
-    <section className="space-y-2 sm:space-y-3 md:space-y-4">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-2">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[#4339CA]">Enter custom prompt</h2>
+    <section className="space-y-2">
+      <header className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <h2 className="text-base xs:text-lg sm:text-xl font-semibold text-[#4339CA]">Enter custom prompt</h2>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleReset}
+            className="w-6 h-6 flex-shrink-0"
+            title="Reset all settings"
+          >
+            <RotateCcw className="h-3 w-3" />
+          </Button>
+        </div>
+      </header>
+      
+      <div className="flex flex-wrap items-center gap-2">
         <GenerationControls
-          className="w-full sm:w-auto scale-90 sm:scale-100"
+          className="flex-1 min-w-0"
           numImages={numImages}
           setNumImages={setNumImages}
           magicPrompt={magicPrompt}
@@ -45,16 +63,18 @@ const GenerationSection = ({
           contextSize={contextSize}
           setContextSize={setContextSize}
           onReset={handleReset}
+          showResetButton={false}
         />
-      </header>
+      </div>
       
-      <div className="space-y-2 sm:space-y-3 md:space-y-4">
+      <div className="space-y-2">
         <PromptInput
           value={customPrompt}
           onChange={setCustomPrompt}
           label="Custom prompt"
           placeholder="Enter your custom prompt..."
-          className="text-sm sm:text-base"
+          className="text-xs xs:text-sm"
+          minHeight="min-h-[80px]"
         />
         
         {currentPrompt && (
@@ -74,34 +94,35 @@ const GenerationSection = ({
         onStart={onStartPromptGeneration}
         onRegenerate={onRegeneratePrompt}
         onGenerate={onGenerate}
-        className="scale-90 sm:scale-100"
+        className="scale-90"
       />
     </section>
   );
 };
 
 const GeneratedPromptSection = ({ currentPrompt, userPrompt, setUserPrompt }) => (
-  <div className="space-y-1 sm:space-y-2">
-    <div className="p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg">
-      <h3 className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Generated Prompt:</h3>
-      <p className="text-xs sm:text-sm text-gray-600">{currentPrompt}</p>
+  <div className="space-y-1">
+    <div className="p-2 bg-gray-50 rounded-lg">
+      <h3 className="text-xs font-medium text-gray-700 mb-1">Generated Prompt:</h3>
+      <p className="text-xs text-gray-600">{currentPrompt}</p>
     </div>
     
-    <div className="space-y-1 sm:space-y-2">
+    <div className="space-y-1">
       <div className="flex justify-between items-center">
-        <label className="text-xs sm:text-sm font-medium text-gray-700">
+        <label className="text-xs font-medium text-gray-700">
           Customize prompt or provide feedback
         </label>
         <PromptAdditionsLibrary
           onSelectAddition={setUserPrompt}
-          className="scale-90 sm:scale-100"
+          className="scale-90"
         />
       </div>
       <PromptInput
         value={userPrompt}
         onChange={setUserPrompt}
         placeholder="Describe what you'd like to change in the prompt..."
-        className="text-xs sm:text-sm"
+        className="text-xs"
+        minHeight="min-h-[60px]"
       />
     </div>
   </div>

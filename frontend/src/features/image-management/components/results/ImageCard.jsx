@@ -4,11 +4,13 @@ import { Button } from "@/shared/ui/button.jsx";
 import { useState } from "react";
 import ImagePreviewModal from "./ImagePreviewModal";
 
+
 export const ImageCard = ({
 	                          image,
 	                          index,
 	                          isSelected,
 	                          isHovered,
+	                          isDeleting,
 	                          onSelect,
 	                          onDelete,
 	                          onHover
@@ -21,7 +23,7 @@ export const ImageCard = ({
 			<motion.div
 				className="relative aspect-square group cursor-pointer"
 				initial={{ opacity: 0, scale: 0.9 }}
-				animate={{ opacity: 1, scale: 1 }}
+				animate={{ opacity: isDeleting ? 0.5 : 1, scale: 1 }}
 				transition={{ delay: index * 0.1 }}
 				onMouseEnter={() => onHover(image)}
 				onMouseLeave={() => onHover(null)}
@@ -49,6 +51,7 @@ export const ImageCard = ({
 								e.stopPropagation();
 								setIsPreviewOpen(true);
 							}}
+							disabled={isDeleting}
 						>
 							<Maximize2 className="h-4 w-4" />
 						</Button>
@@ -61,11 +64,20 @@ export const ImageCard = ({
 								e.stopPropagation();
 								onDelete(image);
 							}}
+							disabled={isDeleting}
 						>
 							<Trash2 className="h-4 w-4" />
 						</Button>
 					</div>
 				</div>
+				
+				{isDeleting && (
+					<div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+            <span className="text-white text-sm font-medium">
+              Deleting... Click 'Undo' to cancel
+            </span>
+					</div>
+				)}
 			</motion.div>
 			
 			<ImagePreviewModal
@@ -76,5 +88,3 @@ export const ImageCard = ({
 		</>
 	);
 };
-
-export default ImageCard;

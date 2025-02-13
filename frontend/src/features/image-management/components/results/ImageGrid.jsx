@@ -1,3 +1,4 @@
+import { useDeleteImage } from '@/features/image-management/components/library/hooks/useDeleteImages.jsx'
 import { Download } from "lucide-react"
 import { Button } from "@/shared/ui/button.jsx"
 import { ImageCard } from "./ImageCard"
@@ -18,7 +19,13 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 		setIsDownloadDialogOpen,
 		setCurrentPage,
 		downloadSelectedImages,
-	} = useImageGrid(images, onImageDelete)
+	} = useImageGrid(images)
+	
+	const { deleteImage, isDeleting } = useDeleteImage();
+	
+	const handleDelete = (image) => {
+		deleteImage(image, () => onImageDelete(image));
+	};
 	
 	return (
 		<div className="space-y-4">
@@ -53,8 +60,9 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 						isSelected={selectedImages.has(image)}
 						isHovered={hoveredImage === image}
 						onSelect={toggleImageSelection}
-						onDelete={onImageDelete}
+						onDelete={handleDelete}
 						onHover={setHoveredImage}
+						isDeleting={isDeleting(image)}
 					/>
 				))}
 			</div>
@@ -63,4 +71,3 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 		</div>
 	)
 }
-

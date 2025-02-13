@@ -14,7 +14,6 @@ export const usePromptGeneration = () => {
 		setError(null)
 		setChatContext(null)
 		setUserPrompt("")
-		setCustomPrompt("")
 	}
 	
 	const generatePrompt = async (image) => {

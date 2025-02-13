@@ -42,7 +42,7 @@ class OpenAIService {
 			console.log('OpenAIService - Sending request with context length:', chatHistory.length);
 			
 			const response = await this.client.chat.completions.create({
-				model: "chatgpt-4o-latest",
+				model: "gpt-4o",
 				messages: chatHistory,
 				max_tokens: 5000,
 			});
@@ -74,7 +74,7 @@ class OpenAIService {
 			const chatHistory = await chatHistoryRepository.getLastMessages(contextSize);
 			
 			const response = await this.client.chat.completions.create({
-				model: "chatgpt-4o-latest",
+				model: "gpt-4o",
 				messages: chatHistory,
 				max_tokens: 5000,
 			});

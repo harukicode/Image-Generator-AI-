@@ -5,7 +5,12 @@ import { Button } from "@/shared/ui/button"
 
 const ImageUploadSection = ({ setUploadedImage, onReset, uploadedImage }) => {
   const { preview, isDragActive, getRootProps, getInputProps, handleSelectFromLibrary, resetImage } = useImageUpload({
-    onUpload: setUploadedImage,
+    onUpload: (file) => {
+      if (file) {
+        onReset();
+      }
+      setUploadedImage(file);
+    },
     onReset,
     uploadedImage,
   });
