@@ -67,14 +67,13 @@ export const useImageGeneration = () => {
 		}
 	};
 	
-	const deleteImage = async (imagePath) => {
-		try {
-			const filename = imagePath.split('/generated/').pop();
-			await axios.delete(`http://localhost:3000/api/generated-images/${filename}`);
-			setGeneratedImages(prev => prev.filter(img => img !== imagePath));
-		} catch (error) {
-			console.error('Error deleting image:', error);
-		}
+	const deleteImage = (imageFilename) => {
+		setGeneratedImages(prev => prev.filter(img => {
+			const currentFilename = typeof img === 'string'
+				? img.split('/').pop()
+				: img.filename;
+			return currentFilename !== imageFilename;
+		}));
 	};
 	
 	return {

@@ -1,96 +1,142 @@
-import { useState, useRef } from 'react';
-import { useToast } from "@/shared/hooks/use-toast";
-import { ToastAction } from "@/shared/ui/toast";
-import axios from "axios";
+import { useImageContext } from '@/features/image-management/components/ui/ImageContext.jsx'
+import { useToast } from '@/shared/hooks/use-toast.js'
+import { ToastAction } from '@/shared/ui/toast.jsx'
+import axios from 'axios'
+import { useRef, useState } from 'react'
 
 export const useDeleteImage = () => {
 	const { toast } = useToast();
 	const [deletingImages, setDeletingImages] = useState(new Map());
 	const deleteTimeoutsRef = useRef(new Map());
+	const { markImageAsDeleted, isImageDeleted } = useImageContext();
 	
-	const getImageId = (image) => {
-		if (typeof image === 'string') return image;
-		if (image?.id) return image.id;
-		if (image?.filename) return image.filename;
-		return image;
+	const getImageDetails = (image) => {
+		let id;
+		let filename;
+		
+		if (typeof image === 'number') {
+			id = image.toString();
+			filename = image.toString();
+		}
+		else if (typeof image === 'string') {
+			const parts = image.split('/');
+			filename = parts[parts.length - 1];
+			id = filename;
+		} else if (typeof image === 'object' && image !== null) {
+			filename = image.filename || image.id;
+			id = image.id || filename;
+		} else {
+			console.error('Invalid image format:', image);
+			return { id: null, filename: null };
+		}
+		
+		return {
+			id: id?.toString(),
+			filename: filename?.toString()
+		};
 	};
 	
 	const deleteImage = async (image, onSuccess) => {
-		const imageId = getImageId(image);
-		console.log('Deleting image with ID:', imageId);
-		
-		// Создаем таймер удаления
-		const timeoutId = setTimeout(async () => {
-			try {
-				const endpoint = image.hasOwnProperty('company_name')
-					? `http://localhost:3000/api/generated-images/${image.filename}`
-					: `http://localhost:3000/api/generated-images/${image}`;
-				
-				await axios.delete(endpoint);
+		try {
+			const { id, filename } = getImageDetails(image);
+			
+			if (isImageDeleted(filename)) {
+				console.log('Image already deleted:', filename);
 				onSuccess?.();
-				
-				toast({
-					title: "Image deleted",
-					description: "The image has been permanently deleted",
-				});
-			} catch (error) {
-				console.error('Error deleting image:', error);
-				toast({
-					title: "Error",
-					description: "Failed to delete image",
-					variant: "destructive",
-				});
-			} finally {
-				deleteTimeoutsRef.current.delete(imageId);
-				setDeletingImages(prev => {
-					const newMap = new Map(prev);
-					newMap.delete(imageId);
-					return newMap;
-				});
+				return;
 			}
-		}, 5000);
-		
-		// Сохраняем информацию о таймере
-		deleteTimeoutsRef.current.set(imageId, {
-			timeoutId,
-			image,
-			onSuccess
-		});
-		
-		// Обновляем состояние удаляемых изображений
-		setDeletingImages(prev => {
-			const newMap = new Map(prev);
-			newMap.set(imageId, true);
-			return newMap;
-		});
-		
-		// Показываем уведомление
-		toast({
-			title: "Deleting image...",
-			description: "The image will be deleted in 5 seconds",
-			action: (
-				<ToastAction
-					altText="Undo"
-					onClick={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						undoDelete(imageId);
-					}}
-					className="bg-white hover:bg-gray-100"
-				>
-					Undo
-				</ToastAction>
-			),
-			duration: 5000,
-		});
+			
+			const performDelete = async () => {
+				try {
+					const endpoint = `http://localhost:3000/api/generated-images/${filename}`;
+					const response = await axios.delete(endpoint);
+					
+					if (response.data?.success) {
+						markImageAsDeleted(filename);
+						onSuccess?.();
+						toast({
+							title: "Success",
+							description: "Image deleted successfully",
+						});
+					} else {
+						throw new Error(response.data?.error || 'Failed to delete image');
+					}
+				} catch (error) {
+					console.error('Delete request failed:', error);
+					
+					const errorMessage = error.response?.status === 404
+						? `Image "${filename}" not found or already deleted`
+						: "Failed to delete image";
+					
+					toast({
+						title: "Error",
+						description: errorMessage,
+						variant: "destructive",
+					});
+				} finally {
+					// Clean up our tracking maps
+					deleteTimeoutsRef.current.delete(id);
+					setDeletingImages(prev => {
+						const newMap = new Map(prev);
+						newMap.delete(id);
+						return newMap;
+					});
+				}
+			};
+			
+			// Set up the deletion timeout
+			const timeoutId = setTimeout(performDelete, 5000);
+			
+			// Store the timeout information
+			deleteTimeoutsRef.current.set(id, {
+				timeoutId,
+				image,
+				onSuccess
+			});
+			
+			// Update the UI state
+			setDeletingImages(prev => {
+				const newMap = new Map(prev);
+				newMap.set(id, true);
+				return newMap;
+			});
+			
+			// Show the deletion toast
+			toast({
+				title: "Deleting image...",
+				description: "The image will be deleted in 5 seconds",
+				action: (
+					<ToastAction
+						altText="Undo"
+						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							undoDelete(id);
+						}}
+						className="bg-white hover:bg-gray-100"
+					>
+						Undo
+					</ToastAction>
+				),
+				duration: 5000,
+			});
+			
+		} catch (error) {
+			console.error('Error initiating delete process:', error);
+			toast({
+				title: "Error",
+				description: "Failed to process deletion request",
+				variant: "destructive",
+			});
+		}
 	};
 	
 	const undoDelete = (imageId) => {
-		console.log('Attempting to undo delete for image:', imageId);
+		console.log('Attempting to undo deletion for:', imageId);
 		const timeoutData = deleteTimeoutsRef.current.get(imageId);
 		
 		if (timeoutData) {
-			console.log('Found timeout data, clearing timeout');
+			console.log('Found timeout data, cancelling deletion');
 			clearTimeout(timeoutData.timeoutId);
 			deleteTimeoutsRef.current.delete(imageId);
 			
@@ -101,18 +147,23 @@ export const useDeleteImage = () => {
 			});
 			
 			toast({
-				title: "Deletion canceled",
+				title: "Deletion cancelled",
 				description: "The image will not be deleted",
 				variant: "default",
 			});
 		} else {
-			console.log('No timeout data found for image:', imageId);
+			console.log('No timeout data found for:', imageId);
 		}
 	};
 	
 	const isDeleting = (image) => {
-		const imageId = getImageId(image);
-		return deletingImages.has(imageId);
+		try {
+			const { id } = getImageDetails(image);
+			return id ? deletingImages.has(id) : false;
+		} catch (error) {
+			console.error('Error checking deletion status:', error);
+			return false;
+		}
 	};
 	
 	return {

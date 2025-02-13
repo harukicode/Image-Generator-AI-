@@ -3,6 +3,7 @@ import GenerationControls from "@/features/prompt-management/components/Generati
 import PromptInput from "@/features/prompt-management/components/GenerationSection/PromptInput.jsx"
 import PromptAdditionsLibrary from "@/features/prompt-management/components/presets/PromptAdditionsLibrary.jsx"
 import { Button } from "@/shared/ui/button"
+import ImageUploadDialog from '@/widgets/image-upload/ImageUploadDialog.jsx'
 import { RotateCcw } from "lucide-react"
 
 const GenerationSection = ({
@@ -26,37 +27,51 @@ const GenerationSection = ({
                              reset: resetPrompt,
                               companyName,
                               setCompanyName,
+                             uploadedImage,
+                             setUploadedImage,
+                             onReset,
                            }) => {
+  
   const handleReset = () => {
     setNumImages(4);
     setContextSize(20);
     setMagicPrompt('AUTO');
     setUserPrompt('');
+    onReset(); // This will handle image reset too
     if (resetPrompt) {
       resetPrompt();
     }
   };
   
   return (
-    <section className="space-y-2">
-      <header className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <h2 className="text-base xs:text-lg sm:text-xl font-semibold text-[#4339CA]">Enter custom prompt</h2>
+    <section className='space-y-2'>
+      <header className='flex justify-between items-center'>
+        <div className='flex items-center gap-4'> {/* Increased gap from 2 to 4 */}
+          <h2 className='text-base xs:text-lg sm:text-xl font-semibold text-[#4339CA]'>
+            Enter custom prompt
+          </h2>
+          {/* Add ImageUploadDialog here */}
+          <ImageUploadDialog
+            setUploadedImage={setUploadedImage}
+            onReset={onReset}
+            uploadedImage={uploadedImage}
+          />
+          {/* Reset button */}
           <Button
-            variant="outline"
-            size="icon"
+            variant='outline'
+            size='icon'
             onClick={handleReset}
-            className="w-6 h-6 flex-shrink-0"
-            title="Reset all settings"
+            className='w-6 h-6 flex-shrink-0'
+            title='Reset all settings'
           >
-            <RotateCcw className="h-3 w-3" />
+            <RotateCcw className='h-3 w-3' />
           </Button>
         </div>
       </header>
       
-      <div className="flex flex-wrap items-center gap-2">
+      <div className='flex flex-wrap items-center gap-2'>
         <GenerationControls
-          className="flex-1 min-w-0"
+          className='flex-1 min-w-0'
           numImages={numImages}
           setNumImages={setNumImages}
           magicPrompt={magicPrompt}
@@ -71,14 +86,14 @@ const GenerationSection = ({
         />
       </div>
       
-      <div className="space-y-2">
+      <div className='space-y-2'>
         <PromptInput
           value={customPrompt}
           onChange={setCustomPrompt}
-          label="Custom prompt"
-          placeholder="Enter your custom prompt..."
-          className="text-xs xs:text-sm"
-          minHeight="min-h-[80px]"
+          label='Custom prompt'
+          placeholder='Enter your custom prompt...'
+          className='text-xs xs:text-sm'
+          minHeight='min-h-[80px]'
         />
         
         {currentPrompt && (
@@ -98,27 +113,27 @@ const GenerationSection = ({
         onStart={onStartPromptGeneration}
         onRegenerate={onRegeneratePrompt}
         onGenerate={onGenerate}
-        className="scale-90"
+        className='scale-90'
       />
     </section>
   );
 };
 
 const GeneratedPromptSection = ({ currentPrompt, userPrompt, setUserPrompt }) => (
-  <div className="space-y-1">
-    <div className="p-2 bg-gray-50 rounded-lg">
-      <h3 className="text-xs font-medium text-gray-700 mb-1">Generated Prompt:</h3>
-      <p className="text-xs text-gray-600">{currentPrompt}</p>
+  <div className='space-y-1'>
+    <div className='p-2 bg-gray-50 rounded-lg'>
+      <h3 className='text-xs font-medium text-gray-700 mb-1'>Generated Prompt:</h3>
+      <p className='text-xs text-gray-600'>{currentPrompt}</p>
     </div>
     
-    <div className="space-y-1">
-      <div className="flex justify-between items-center">
-        <label className="text-xs font-medium text-gray-700">
+    <div className='space-y-1'>
+      <div className='flex justify-between items-center'>
+        <label className='text-xs font-medium text-gray-700'>
           Customize prompt or provide feedback
         </label>
         <PromptAdditionsLibrary
           onSelectAddition={setUserPrompt}
-          className="scale-90"
+          className='scale-90'
         />
       </div>
       <PromptInput

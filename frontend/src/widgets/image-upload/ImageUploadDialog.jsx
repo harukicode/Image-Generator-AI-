@@ -12,7 +12,11 @@ const ImageUploadDialog = ({ setUploadedImage, onReset, uploadedImage }) => {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant="outline">
+				<Button
+					variant="outline"
+					size="sm"
+					className="h-8 px-3"
+				>
 					{uploadedImage ? 'Change Image' : 'Upload Image'}
 				</Button>
 			</DialogTrigger>

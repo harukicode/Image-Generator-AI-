@@ -1,3 +1,5 @@
+import { useImageContext } from '@/features/image-management/components/ui/ImageContext.jsx'
+import { useState, useEffect } from 'react';
 import { EmptyView } from '@/features/image-management/components/results/views/EmptyView.jsx'
 import { LoadingView } from '@/features/image-management/components/results/views/LoadingView.jsx'
 import { AnimatePresence } from "framer-motion";
@@ -11,21 +13,58 @@ export const ResultSection = ({
                                 onImageDelete,
                                 generationProgress = { totalBatches: 0, completedBatches: 0 }
                               }) => {
+  const { isImageDeleted, markImageAsDeleted } = useImageContext();
+  const [localImages, setLocalImages] = useState(generatedImages);
+  
+  useEffect(() => {
+    const filteredImages = generatedImages.filter(img => {
+      const filename = typeof img === 'string'
+        ? img.split('/').pop()
+        : img.filename;
+      return !isImageDeleted(filename);
+    });
+    setLocalImages(filteredImages);
+  }, [generatedImages, isImageDeleted]);
+  
+  const handleImageDelete = (deletedImage) => {
+    const deletedFilename = typeof deletedImage === 'string'
+      ? deletedImage.split('/').pop()
+      : deletedImage.filename;
+    
+    console.log('Handling image deletion in ResultSection:', {
+      deletedImage,
+      deletedFilename
+    });
+    
+    setLocalImages(prevImages =>
+      prevImages.filter(img => {
+        const currentFilename = typeof img === 'string'
+          ? img.split('/').pop()
+          : img.filename;
+        return currentFilename !== deletedFilename;
+      })
+    );
+    
+    if (onImageDelete) {
+      onImageDelete(deletedFilename);
+    }
+  };
+  
   const renderContent = () => {
     if (isGenerating) {
       return (
         <LoadingView
           generationProgress={generationProgress}
-          generatedImages={generatedImages}
+          generatedImages={localImages}
         />
       );
     }
     
-    if (generatedImages.length > 0) {
+    if (localImages.length > 0) {
       return (
         <ResultContent
-          images={generatedImages}
-          onImageDelete={onImageDelete}
+          images={localImages}
+          onImageDelete={handleImageDelete}
         />
       );
     }
