@@ -1,6 +1,6 @@
-import GeneratorPage from '@/pages/GeneratorPage.jsx'
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import GeneratorPage from '@/pages/GeneratorPage';
 import { Toaster } from "@/shared/ui/toaster";
 import './styles/index.css';
 
