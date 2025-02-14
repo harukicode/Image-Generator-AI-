@@ -8,7 +8,7 @@ import {
 import { Button } from "@/shared/ui/button"
 import ImageUploadSection from './ImageUploadSection'
 
-const ImageUploadDialog = ({ setUploadedImage, onReset, uploadedImage }) => {
+const ImageUploadDialog = ({ setUploadedImage, uploadedImage, resetPromptOnly }) => {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
@@ -27,8 +27,8 @@ const ImageUploadDialog = ({ setUploadedImage, onReset, uploadedImage }) => {
 				<div className="p-6">
 					<ImageUploadSection
 						setUploadedImage={setUploadedImage}
-						onReset={onReset}
 						uploadedImage={uploadedImage}
+						resetPromptOnly={resetPromptOnly}
 					/>
 				</div>
 			</DialogContent>

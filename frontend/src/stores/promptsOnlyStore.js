@@ -95,9 +95,18 @@ export const usePromptsOnlyStore = create((set, get) => ({
 		}
 	},
 	
+	updateCurrentPrompt: (prompt) => set({ currentPrompt: prompt }),
+	
+	
+	resetPromptOnly: () => set({
+		currentPrompt: "",
+		isNewPrompt: false,
+		isGeneratingPrompt: false,
+		chatContext: null,
+	}),
+	
 	// Reset functionality
 	reset: () => set({
-		uploadedImage: null,
 		contextSize: 20,
 		companyName: "",
 		customPrompt: "",
@@ -106,6 +115,5 @@ export const usePromptsOnlyStore = create((set, get) => ({
 		error: null,
 		isGeneratingPrompt: false,
 		chatContext: null,
-		isNewPrompt: false
 	})
 }));

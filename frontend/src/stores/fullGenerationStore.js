@@ -177,9 +177,18 @@ export const useFullGenerationStore = create((set, get) => ({
 		}));
 	},
 	
+	updateCurrentPrompt: (prompt) => set({ currentPrompt: prompt }),
+	
+	
+	resetPromptOnly: () => set({
+		currentPrompt: "",
+		isNewPrompt: false,
+		isGeneratingPrompt: false,
+		chatContext: null,
+	}),
+	
 	// Сброс состояний
 	reset: () => set({
-		uploadedImage: null,
 		contextSize: 20,
 		companyName: "",
 		customPrompt: "",
@@ -187,7 +196,6 @@ export const useFullGenerationStore = create((set, get) => ({
 		currentPrompt: "",
 		error: null,
 		chatContext: null,
-		isNewPrompt: false,
 	}),
 	
 	resetAll: () => set({

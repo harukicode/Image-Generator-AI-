@@ -178,62 +178,62 @@ function GeneratedImagesLibrary() {
                     }`}
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          size="sm"
-                          className="bg-white hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-lg
-                                    border border-gray-300 shadow-md hover:shadow-lg transition-all
-                                    flex items-center gap-2 font-medium"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Info className="w-5 h-5" />
-                          Details
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="rounded-xl max-w-md p-6 bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                            <Info className="w-6 h-6 text-blue-600" />
-                            Image Details
-                          </DialogTitle>
-                        </DialogHeader>
-                        
-                        <div className="space-y-5 mt-4">
-                          <div className="flex flex-col gap-1.5">
-                            <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
-                              <Briefcase className="w-4 h-4" />
-                              Company
-                            </div>
-                            <p className="text-gray-800 text-base pl-6">{image.company_name}</p>
-                          </div>
-                          
-                          <div className="border-t border-gray-200 my-3" />
-                          
-                          <div className="flex flex-col gap-1.5">
-                            <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
-                              <Edit3 className="w-4 h-4" />
-                              Generation Prompt
-                            </div>
-                            <p className="text-gray-800 text-base bg-gray-50 rounded-lg p-3.5">
-                              {image.prompt}
-                            </p>
-                          </div>
-                          
-                          <div className="border-t border-gray-200 my-3" />
-                          
-                          <div className="flex flex-col gap-1.5">
-                            <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
-                              <Calendar className="w-4 h-4" />
-                              Created At
-                            </div>
-                            <p className="text-gray-800 text-base pl-6">
-                              {new Date(image.created_at).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    {/*<Dialog>*/}
+                    {/*  <DialogTrigger asChild>*/}
+                    {/*    <Button*/}
+                    {/*      size="sm"*/}
+                    {/*      className="bg-white hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-lg*/}
+                    {/*                border border-gray-300 shadow-md hover:shadow-lg transition-all*/}
+                    {/*                flex items-center gap-2 font-medium"*/}
+                    {/*      onClick={(e) => e.stopPropagation()}*/}
+                    {/*    >*/}
+                    {/*      <Info className="w-5 h-5" />*/}
+                    {/*      Details*/}
+                    {/*    </Button>*/}
+                    {/*  </DialogTrigger>*/}
+                    {/*  <DialogContent className="rounded-xl max-w-md p-6 bg-white/95 backdrop-blur-sm border-0 shadow-2xl">*/}
+                    {/*    <DialogHeader>*/}
+                    {/*      <DialogTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">*/}
+                    {/*        <Info className="w-6 h-6 text-blue-600" />*/}
+                    {/*        Image Details*/}
+                    {/*      </DialogTitle>*/}
+                    {/*    </DialogHeader>*/}
+                    {/*    */}
+                    {/*    <div className="space-y-5 mt-4">*/}
+                    {/*      <div className="flex flex-col gap-1.5">*/}
+                    {/*        <div className="flex items-center gap-2 text-sm font-medium text-gray-500">*/}
+                    {/*          <Briefcase className="w-4 h-4" />*/}
+                    {/*          Company*/}
+                    {/*        </div>*/}
+                    {/*        <p className="text-gray-800 text-base pl-6">{image.company_name}</p>*/}
+                    {/*      </div>*/}
+                    {/*      */}
+                    {/*      <div className="border-t border-gray-200 my-3" />*/}
+                    {/*      */}
+                    {/*      <div className="flex flex-col gap-1.5">*/}
+                    {/*        <div className="flex items-center gap-2 text-sm font-medium text-gray-500">*/}
+                    {/*          <Edit3 className="w-4 h-4" />*/}
+                    {/*          Generation Prompt*/}
+                    {/*        </div>*/}
+                    {/*        <p className="text-gray-800 text-base bg-gray-50 rounded-lg p-3.5">*/}
+                    {/*          {image.prompt}*/}
+                    {/*        </p>*/}
+                    {/*      </div>*/}
+                    {/*      */}
+                    {/*      <div className="border-t border-gray-200 my-3" />*/}
+                    {/*      */}
+                    {/*      <div className="flex flex-col gap-1.5">*/}
+                    {/*        <div className="flex items-center gap-2 text-sm font-medium text-gray-500">*/}
+                    {/*          <Calendar className="w-4 h-4" />*/}
+                    {/*          Created At*/}
+                    {/*        </div>*/}
+                    {/*        <p className="text-gray-800 text-base pl-6">*/}
+                    {/*          {new Date(image.created_at).toLocaleString()}*/}
+                    {/*        </p>*/}
+                    {/*      </div>*/}
+                    {/*    </div>*/}
+                    {/*  </DialogContent>*/}
+                    {/*</Dialog>*/}
                     
                     <Button
                       size="sm"

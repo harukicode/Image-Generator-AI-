@@ -105,6 +105,7 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 						onDelete={handleDelete}
 						onHover={setHoveredImage}
 						isDeleting={isDeleting(image)}
+						allImages={getCurrentPageImages()}
 					/>
 				))}
 			</div>

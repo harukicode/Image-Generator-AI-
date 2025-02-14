@@ -20,7 +20,9 @@ export function PromptsOnlyTab() {
 		generatePrompt,
 		regeneratePrompt,
 		reset,
-		isNewPrompt
+		isNewPrompt,
+		updateCurrentPrompt,
+		resetPromptOnly
 	} = usePromptsOnlyStore();
 	
 	// Создаем обработчики, использующие методы стора
@@ -53,6 +55,8 @@ export function PromptsOnlyTab() {
 					uploadedImage={uploadedImage}
 					setUploadedImage={setUploadedImage}
 					onReset={reset}
+					resetPromptOnly={resetPromptOnly}
+					updateCurrentPrompt={updateCurrentPrompt}
 				/>
 				
 				{error && (

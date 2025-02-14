@@ -28,6 +28,8 @@ const BaseGenerationSection = ({
 	                               setUploadedImage,
 	                               onReset,
 			                               isNewPrompt,
+	                               updateCurrentPrompt,
+	                               resetPromptOnly,
                                }) => {
 	// Обработчик сброса базовых настроек
 	const handleReset = () => {
@@ -46,7 +48,7 @@ const BaseGenerationSection = ({
 					</h2>
 					<ImageUploadDialog
 						setUploadedImage={setUploadedImage}
-						onReset={onReset}
+						resetPromptOnly={resetPromptOnly}
 						uploadedImage={uploadedImage}
 					/>
 					<Button
@@ -89,8 +91,11 @@ const BaseGenerationSection = ({
 				
 				{currentPrompt && (
 					<div className='space-y-1'>
-							<AnimatedPromptDisplay prompt={currentPrompt} isNew={isNewPrompt} />
-						
+						<AnimatedPromptDisplay
+							prompt={currentPrompt}
+							isNew={isNewPrompt}
+							onPromptEdit={updateCurrentPrompt}
+						/>
 						<div className='space-y-1'>
 							{/* Добавляем PromptAdditionsLibrary в заголовок секции кастомизации */}
 							<div className='flex justify-between items-center'>

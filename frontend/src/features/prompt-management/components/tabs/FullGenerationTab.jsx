@@ -30,7 +30,9 @@ export function FullGenerationTab() {
 		generateImages,
 		deleteImage,
 		reset,
-		isNewPrompt
+		isNewPrompt,
+		updateCurrentPrompt,
+		resetPromptOnly,
 	} = useFullGenerationStore();
 	
 	const handleStartPromptGeneration = () => {
@@ -69,6 +71,8 @@ export function FullGenerationTab() {
 						uploadedImage={uploadedImage}
 						setUploadedImage={setUploadedImage}
 						onReset={reset}
+						updateCurrentPrompt={updateCurrentPrompt}
+						resetPromptOnly={resetPromptOnly}
 					/>
 				</div>
 			</div>

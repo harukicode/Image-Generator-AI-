@@ -9,13 +9,13 @@ const BaseGenerationControls = ({
 	                                setCompanyName,
                                 }) => {
 	return (
-		<div className={`flex flex-wrap items-center gap-2 ${className}`}>
-			<div className="flex items-center gap-2 min-w-0">
+		<div className={`flex flex-wrap items-center gap-1.5 ${className}`}>
+			<div className="flex items-center gap-1.5 min-w-0">
 				{/* Ввод названия компании */}
 				<Input
 					type="text"
 					placeholder="Company name"
-					className="w-[140px]"
+					className="w-[120px] h-8 text-xs"
 					value={companyName}
 					onChange={(e) => setCompanyName(e.target.value)}
 				/>
@@ -45,12 +45,12 @@ const ContextSizeInput = ({ value, onChange }) => (
 					onChange(Math.max(2, Math.min(500, num)));
 				}
 			}}
-			className="w-[70px] pr-7"
+			className="w-[60px] pr-6 h-8 text-xs"
 			placeholder="Context"
 		/>
-		<div className="absolute right-2 top-1/2 -translate-y-1/2 group">
+		<div className="absolute right-1.5 top-1/2 -translate-y-1/2 group">
 			<Info className="w-3 h-3 text-gray-400" />
-			<div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+			<div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-gray-800 text-white text-xs rounded whitespace-nowrap z-50">
 				Number of previous messages to keep in context (2-500)
 			</div>
 		</div>

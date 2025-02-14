@@ -3,15 +3,18 @@ import { DropZone } from "./DropZone"
 import { useImageUpload } from "./hooks/useImageUpload"
 import { Button } from "@/shared/ui/button"
 
-const ImageUploadSection = ({ setUploadedImage, onReset, uploadedImage }) => {
+const ImageUploadSection = ({ setUploadedImage, uploadedImage, resetPromptOnly }) => {
   const { preview, isDragActive, getRootProps, getInputProps, handleSelectFromLibrary, resetImage } = useImageUpload({
     onUpload: (file) => {
       if (file) {
-        onReset();
+        resetPromptOnly?.();
       }
       setUploadedImage(file);
     },
-    onReset,
+    onReset: () => {
+      resetPromptOnly?.();
+      setUploadedImage(null);
+    },
     uploadedImage,
   });
   
@@ -21,7 +24,14 @@ const ImageUploadSection = ({ setUploadedImage, onReset, uploadedImage }) => {
         <h2 className="text-2xl font-semibold text-gray-800">Upload an image</h2>
         <div className="flex gap-2">
           {preview && (
-            <Button variant="outline" onClick={resetImage}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                resetImage();
+                resetPromptOnly?.();
+                setUploadedImage(null);
+              }}
+            >
               Remove Image
             </Button>
           )}

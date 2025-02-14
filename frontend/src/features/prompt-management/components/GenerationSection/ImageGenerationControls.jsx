@@ -10,7 +10,7 @@ const ImageGenerationControls = ({
 	                                 setCustomPrompt,
                                  }) => {
 	return (
-		<div className="flex items-center gap-2 min-w-0">
+		<div className="flex items-center gap-1.5 min-w-0">
 			{/* Контроль количества изображений */}
 			<NumImagesInput value={numImages} onChange={setNumImages} />
 			
@@ -40,7 +40,7 @@ const NumImagesInput = ({ value, onChange }) => (
 				onChange(num > 50 ? '50' : value);
 			}
 		}}
-		className="w-[60px]"
+		className="w-[50px] h-8 text-xs"
 		placeholder="Images"
 	/>
 );
@@ -48,13 +48,15 @@ const NumImagesInput = ({ value, onChange }) => (
 // Компонент для выбора режима Magic Prompt
 const MagicPromptSelect = ({ value, onChange }) => (
 	<Select value={value} onValueChange={onChange}>
-		<SelectTrigger className="w-[100px]">
-			<SelectValue placeholder="Magic" />
+		<SelectTrigger className="w-[80px] h-8 text-xs">
+			<SelectValue placeholder="Magic">
+				{value === 'ON' ? 'On' : value === 'OFF' ? 'Off' : 'Auto'}
+			</SelectValue>
 		</SelectTrigger>
-		<SelectContent>
-			<SelectItem value="ON">Magic: On</SelectItem>
-			<SelectItem value="OFF">Magic: Off</SelectItem>
-			<SelectItem value="AUTO">Magic: Auto</SelectItem>
+		<SelectContent className="bg-white min-w-[80px] text-xs">
+			<SelectItem value="ON">On</SelectItem>
+			<SelectItem value="OFF">Off</SelectItem>
+			<SelectItem value="AUTO">Auto</SelectItem>
 		</SelectContent>
 	</Select>
 );

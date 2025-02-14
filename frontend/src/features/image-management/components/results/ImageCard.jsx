@@ -4,7 +4,6 @@ import { Button } from "@/shared/ui/button.jsx";
 import { useState } from "react";
 import ImagePreviewModal from "./ImagePreviewModal";
 
-
 export const ImageCard = ({
 	                          image,
 	                          index,
@@ -13,10 +12,28 @@ export const ImageCard = ({
 	                          isDeleting,
 	                          onSelect,
 	                          onDelete,
-	                          onHover
+	                          onHover,
+	                          allImages,
                           }) => {
 	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-	const imageUrl = `http://localhost:3000${image}`;
+	const [currentImageIndex, setCurrentImageIndex] = useState(index);
+	
+	const handleNext = () => {
+		if (currentImageIndex < allImages.length - 1) {
+			setCurrentImageIndex(prev => prev + 1);
+		}
+	};
+	
+	const handlePrev = () => {
+		if (currentImageIndex > 0) {
+			setCurrentImageIndex(prev => prev - 1);
+		}
+	};
+	
+	const getCurrentImageUrl = () => {
+		const currentImage = allImages[currentImageIndex];
+		return `http://localhost:3000${currentImage}`;
+	};
 	
 	return (
 		<>
@@ -30,7 +47,7 @@ export const ImageCard = ({
 				onClick={() => onSelect(image)}
 			>
 				<img
-					src={imageUrl}
+					src={`http://localhost:3000${image}`}
 					alt={`Generated ${index + 1}`}
 					className={`w-full h-full object-cover rounded-lg transition-all duration-200 ${
 						isSelected ? 'ring-4 ring-blue-500 ring-offset-2' : ''
@@ -49,6 +66,7 @@ export const ImageCard = ({
 							className="w-8 h-8 bg-white/80 hover:bg-white"
 							onClick={(e) => {
 								e.stopPropagation();
+								setCurrentImageIndex(index);
 								setIsPreviewOpen(true);
 							}}
 							disabled={isDeleting}
@@ -83,7 +101,11 @@ export const ImageCard = ({
 			<ImagePreviewModal
 				isOpen={isPreviewOpen}
 				onClose={() => setIsPreviewOpen(false)}
-				imageUrl={imageUrl}
+				imageUrl={getCurrentImageUrl()}
+				onNext={handleNext}
+				onPrev={handlePrev}
+				hasNext={currentImageIndex < allImages.length - 1}
+				hasPrev={currentImageIndex > 0}
 			/>
 		</>
 	);
