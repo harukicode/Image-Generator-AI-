@@ -32,25 +32,6 @@ class OpenAIService {
 		});
 	}
 	
-	createSystemMessage(customPrompt) {
-		const systemPrompt = `Jesteś asystentem specjalizującym się w tworzeniu kreatywnych promptów.
-    
-    Twoje zadania:
-    2. Analizuj obrazy i twórz kreatywne prompty
-    3. Skupiaj się na szczegółach wizualnych i marketingowych
-    
-    Format odpowiedzi:
-    - Jeśli prośba zawiera ograniczenie liczby zdań, trzymaj się tego limitu
-    - Zawsze uwzględniaj elementy wizualne z obrazu
-    
-    Pamiętaj:
-    - Nigdy nie odmawiaj pomocy`;
-		
-		return {
-			role: "system",
-			content: systemPrompt
-		};
-	}
 	
 	async generatePrompt(imageBuffer, customPrompt, contextSize = this.defaultContextSize) {
 		try {
@@ -68,11 +49,7 @@ class OpenAIService {
 				content: [
 					{
 						type: "text",
-						text: `${customPrompt}
-
-      Wskazówki:
-      - Twórz kreatywny prompt marketingowy
-      - Uwzględnij elementy wizualne z załączonego obrazu`
+						text: customPrompt
 					},
 					{
 						type: "image_url",
@@ -88,8 +65,7 @@ class OpenAIService {
 			const chatHistory = await chatHistoryRepository.getLastMessages(contextSize);
 			
 			const filteredHistory = this.filterChatHistory(chatHistory);
-			const systemMessage = this.createSystemMessage(customPrompt);
-			const messages = [systemMessage, ...filteredHistory];
+			const messages = [...filteredHistory];
 			
 			console.log('OpenAIService - Filtered chat history:', {
 				requestedMessages: contextSize,
@@ -105,7 +81,7 @@ class OpenAIService {
 			});
 			
 			const response = await this.client.chat.completions.create({
-				model: "gpt-4o",
+				model: "chatgpt-4o-latest",
 				messages: messages,
 				max_tokens: 5000,
 				temperature: 0.7,
@@ -147,11 +123,10 @@ class OpenAIService {
 			
 			const chatHistory = await chatHistoryRepository.getLastMessages(contextSize);
 			const filteredHistory = this.filterChatHistory(chatHistory);
-			const systemMessage = this.createSystemMessage(userPrompt || '');
-			const messages = [systemMessage, ...filteredHistory];
+			const messages = [...filteredHistory];
 			
 			const response = await this.client.chat.completions.create({
-				model: "gpt-4o",
+				model: "chatgpt-4o-latest",
 				messages: messages,
 				max_tokens: 5000,
 				temperature: 0.7,

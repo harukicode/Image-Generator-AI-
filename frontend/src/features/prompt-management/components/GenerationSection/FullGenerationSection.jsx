@@ -1,3 +1,5 @@
+import AnimatedPromptDisplay
+  from '@/features/prompt-management/components/GenerationSection/ui/AnimatedPromptDisplay.jsx'
 import { Button } from "@/shared/ui/button"
 import { RotateCcw } from "lucide-react"
 import PromptInput from "./PromptInput"
@@ -32,6 +34,7 @@ const FullGenerationSection = ({
                                  setMagicPrompt,
                                  isGeneratingImages,
                                  onGenerate,
+                                  isNewPrompt,
                                }) => {
   // Обработчик сброса всех настроек
   const handleReset = () => {
@@ -102,12 +105,7 @@ const FullGenerationSection = ({
         
         {currentPrompt && (
           <div className='space-y-1'>
-            <div className='p-2 bg-gray-50 rounded-lg'>
-              <h3 className='text-xs font-medium text-gray-700 mb-1'>
-                Generated Prompt:
-              </h3>
-              <p className='text-xs text-gray-600'>{currentPrompt}</p>
-            </div>
+              <AnimatedPromptDisplay prompt={currentPrompt} isNew={isNewPrompt} />
             
             <div className='space-y-1'>
               <div className='flex justify-between items-center'>

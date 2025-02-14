@@ -13,6 +13,7 @@ export const useFullGenerationStore = create((set, get) => ({
 	isGeneratingPrompt: false,
 	error: null,
 	chatContext: null, // Добавляем из usePromptGeneration
+	isNewPrompt: false,
 	
 	// Состояния для генерации изображений
 	numImages: 4,
@@ -63,8 +64,13 @@ export const useFullGenerationStore = create((set, get) => ({
 			if (response.success) {
 				set({
 					currentPrompt: response.data.prompt,
-					chatContext: response.data.context
+					chatContext: response.data.context,
+					isNewPrompt: true
 				});
+				
+				setTimeout(() => {
+					set({ isNewPrompt: false });
+				}, 3000);
 			} else {
 				throw new Error(response.error || "Prompt generation failed");
 			}
@@ -89,8 +95,13 @@ export const useFullGenerationStore = create((set, get) => ({
 			if (response.success) {
 				set({
 					currentPrompt: response.data.prompt,
-					chatContext: response.data.context
+					chatContext: response.data.context,
+					isNewPrompt: true
 				});
+				
+				setTimeout(() => {
+					set({ isNewPrompt: false });
+				}, 3000);
 			} else {
 				throw new Error(response.error || "Prompt regeneration failed");
 			}
@@ -175,7 +186,8 @@ export const useFullGenerationStore = create((set, get) => ({
 		userPrompt: "",
 		currentPrompt: "",
 		error: null,
-		chatContext: null
+		chatContext: null,
+		isNewPrompt: false,
 	}),
 	
 	resetAll: () => set({

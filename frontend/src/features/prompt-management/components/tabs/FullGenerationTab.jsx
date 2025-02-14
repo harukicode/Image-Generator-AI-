@@ -29,7 +29,8 @@ export function FullGenerationTab() {
 		regeneratePrompt,
 		generateImages,
 		deleteImage,
-		reset
+		reset,
+		isNewPrompt
 	} = useFullGenerationStore();
 	
 	const handleStartPromptGeneration = () => {
@@ -45,6 +46,7 @@ export function FullGenerationTab() {
 			<div className="flex-1 h-full">
 				<div className="bg-white rounded-2xl shadow-sm p-4 h-full">
 					<FullGenerationSection
+						isNewPrompt={isNewPrompt}
 						customPrompt={customPrompt}
 						setCustomPrompt={setCustomPrompt}
 						onStartPromptGeneration={handleStartPromptGeneration}

@@ -1,3 +1,5 @@
+import AnimatedPromptDisplay
+	from '@/features/prompt-management/components/GenerationSection/ui/AnimatedPromptDisplay.jsx'
 import PresetLibrary from '@/features/prompt-management/components/presets/PresetLibrary.jsx'
 import PromptAdditionsLibrary from '@/features/prompt-management/components/presets/PromptAdditionsLibrary.jsx'
 import { Button } from "@/shared/ui/button"
@@ -25,6 +27,7 @@ const BaseGenerationSection = ({
 	                               uploadedImage,
 	                               setUploadedImage,
 	                               onReset,
+			                               isNewPrompt,
                                }) => {
 	// Обработчик сброса базовых настроек
 	const handleReset = () => {
@@ -86,12 +89,7 @@ const BaseGenerationSection = ({
 				
 				{currentPrompt && (
 					<div className='space-y-1'>
-						<div className='p-2 bg-gray-50 rounded-lg'>
-							<h3 className='text-xs font-medium text-gray-700 mb-1'>
-								Generated Prompt:
-							</h3>
-							<p className='text-xs text-gray-600'>{currentPrompt}</p>
-						</div>
+							<AnimatedPromptDisplay prompt={currentPrompt} isNew={isNewPrompt} />
 						
 						<div className='space-y-1'>
 							{/* Добавляем PromptAdditionsLibrary в заголовок секции кастомизации */}

@@ -19,7 +19,8 @@ export function PromptsOnlyTab() {
 		error,
 		generatePrompt,
 		regeneratePrompt,
-		reset
+		reset,
+		isNewPrompt
 	} = usePromptsOnlyStore();
 	
 	// Создаем обработчики, использующие методы стора
@@ -35,6 +36,7 @@ export function PromptsOnlyTab() {
 		<div className="h-full w-full">
 			<div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 h-full">
 				<BaseGenerationSection
+					isNewPrompt={isNewPrompt}
 					customPrompt={customPrompt}
 					setCustomPrompt={setCustomPrompt}
 					onStartPromptGeneration={handleStartPromptGeneration}

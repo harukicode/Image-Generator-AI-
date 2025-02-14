@@ -10,6 +10,7 @@ export const usePromptsOnlyStore = create((set, get) => ({
 	userPrompt: "",
 	currentPrompt: "",
 	isGeneratingPrompt: false,
+	isNewPrompt: false,
 	error: null,
 	chatContext: null, // Added this from usePromptGeneration
 	
@@ -44,8 +45,13 @@ export const usePromptsOnlyStore = create((set, get) => ({
 			if (response.success) {
 				set({
 					currentPrompt: response.data.prompt,
-					chatContext: response.data.context
+					chatContext: response.data.context,
+					isNewPrompt: true
 				});
+				setTimeout(() => {
+					set({ isNewPrompt: false });
+				}, 3000);
+				
 			} else {
 				throw new Error(response.error || "Prompt generation failed");
 			}
@@ -70,8 +76,13 @@ export const usePromptsOnlyStore = create((set, get) => ({
 			if (response.success) {
 				set({
 					currentPrompt: response.data.prompt,
-					chatContext: response.data.context
+					chatContext: response.data.context,
+					isNewPrompt: true
 				});
+				
+				setTimeout(() => {
+					set({ isNewPrompt: false });
+				}, 3000);
 			} else {
 				throw new Error(response.error || "Prompt regeneration failed");
 			}
@@ -94,6 +105,7 @@ export const usePromptsOnlyStore = create((set, get) => ({
 		currentPrompt: "",
 		error: null,
 		isGeneratingPrompt: false,
-		chatContext: null
+		chatContext: null,
+		isNewPrompt: false
 	})
 }));
