@@ -81,12 +81,6 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 				)}
 			</div>
 			
-			<div className="text-sm text-gray-500 text-center">
-				<div>
-					Showing {Math.min(12, images.length - (currentPage - 1) * 12)} of {images.length} images
-				</div>
-			</div>
-			
 			<DownloadDialog
 				isOpen={isDownloadDialogOpen}
 				onClose={() => setIsDownloadDialogOpen(false)}

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 function GeneratorPage() {
 	return (
 		<ImageProvider>
-			<div className="w-full flex flex-col min-h-screen">
+			<div className="w-full flex flex-col min-h-screen ">
 				<Tabs defaultValue="image-generator" className="flex-1 flex flex-col w-full">
 					<div className="w-full mb-4">
 						<TabsList className="w-full bg-white rounded-lg p-1 shadow-sm">

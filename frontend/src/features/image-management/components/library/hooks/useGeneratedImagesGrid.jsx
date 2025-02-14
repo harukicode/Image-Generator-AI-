@@ -6,7 +6,7 @@ export const useGeneratedImagesGrid = (images) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const { toast } = useToast();
 	
-	const ITEMS_PER_PAGE = 12;
+	const ITEMS_PER_PAGE = 8;
 	const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
 	
 	const getCurrentPageImages = () => {
