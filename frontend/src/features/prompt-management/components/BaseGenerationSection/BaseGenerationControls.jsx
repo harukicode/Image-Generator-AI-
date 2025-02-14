@@ -15,7 +15,7 @@ const BaseGenerationControls = ({
 				<Input
 					type="text"
 					placeholder="Company name"
-					className="w-[120px] h-8 text-xs"
+					className="w-[125px] h-8 text-xs"
 					value={companyName}
 					onChange={(e) => setCompanyName(e.target.value)}
 				/>

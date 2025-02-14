@@ -4,7 +4,7 @@ import { create } from 'zustand';
 export const usePromptsOnlyStore = create((set, get) => ({
 	// Base states
 	uploadedImage: null,
-	contextSize: 20,
+	contextSize: 5,
 	companyName: "",
 	customPrompt: "",
 	userPrompt: "",
@@ -107,7 +107,7 @@ export const usePromptsOnlyStore = create((set, get) => ({
 	
 	// Reset functionality
 	reset: () => set({
-		contextSize: 20,
+		contextSize: 5,
 		companyName: "",
 		customPrompt: "",
 		userPrompt: "",

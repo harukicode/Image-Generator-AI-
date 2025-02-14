@@ -5,7 +5,7 @@ import { createBatches, generateAllBatches } from '@/shared/utils/batchImageGene
 export const useFullGenerationStore = create((set, get) => ({
 	// Базовые состояния
 	uploadedImage: null,
-	contextSize: 20,
+	contextSize: 5,
 	companyName: "",
 	customPrompt: "",
 	userPrompt: "",
@@ -189,7 +189,7 @@ export const useFullGenerationStore = create((set, get) => ({
 	
 	// Сброс состояний
 	reset: () => set({
-		contextSize: 20,
+		contextSize: 5,
 		companyName: "",
 		customPrompt: "",
 		userPrompt: "",
