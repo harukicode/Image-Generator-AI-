@@ -1,7 +1,7 @@
-import { useFullGenerationStore } from '@/stores/fullGenerationStore';
-import { ResultSection } from '@/features/image-management/components/results/ResultSection';
-import FullGenerationSection from '@/features/prompt-management/components/GenerationSection/FullGenerationSection';
-import { motion } from 'framer-motion';
+import { useFullGenerationStore } from "@/stores/fullGenerationStore"
+import { ResultSection } from "@/features/image-management/components/results/ResultSection"
+import FullGenerationSection from "@/features/prompt-management/components/GenerationSection/FullGenerationSection"
+import { motion } from "framer-motion"
 
 export function FullGenerationTab() {
 	const {
@@ -37,15 +37,19 @@ export function FullGenerationTab() {
 		setIsHistoryEnabled,
 		selectedModel,
 		setSelectedModel,
-	} = useFullGenerationStore();
+	} = useFullGenerationStore()
 	
 	const handleStartPromptGeneration = () => {
-		generatePrompt(uploadedImage, contextSize, companyName, selectedModel);
-	};
+		generatePrompt(uploadedImage, contextSize, companyName, selectedModel)
+	}
 	
 	const handleRegeneratePrompt = () => {
-		regeneratePrompt(userPrompt, contextSize, companyName, selectedModel);
-	};
+		regeneratePrompt(userPrompt, contextSize, companyName, selectedModel)
+	}
+	
+	const handleGenerateNewPrompt = () => {
+		generatePrompt(uploadedImage, contextSize, companyName, selectedModel)
+	}
 	
 	return (
 		<div className="flex flex-col lg:flex-row gap-4 lg:gap-8 h-full">
@@ -81,6 +85,7 @@ export function FullGenerationTab() {
 						setIsHistoryEnabled={setIsHistoryEnabled}
 						selectedModel={selectedModel}
 						setSelectedModel={setSelectedModel}
+						onGenerateNew={handleGenerateNewPrompt}
 					/>
 				</div>
 			</div>
@@ -102,5 +107,6 @@ export function FullGenerationTab() {
 				</div>
 			</motion.div>
 		</div>
-	);
+	)
 }
+

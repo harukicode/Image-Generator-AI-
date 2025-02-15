@@ -33,6 +33,7 @@ const BaseGenerationSection = ({
 	                               resetPromptOnly,
 	                               selectedModel,
 	                               setSelectedModel,
+			                               onGenerateNew,
                                }) => {
 	// Обработчик сброса базовых настроек
 	const handleReset = () => {
@@ -130,6 +131,7 @@ const BaseGenerationSection = ({
 				isStartDisabled={isStartDisabled}
 				onStart={onStartPromptGeneration}
 				onRegenerate={onRegeneratePrompt}
+				onGenerateNew={onGenerateNew}
 			/>
 		</section>
 	);

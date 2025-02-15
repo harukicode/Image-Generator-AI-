@@ -8,23 +8,19 @@ const BaseGenerationButtons = ({
 	                               isStartDisabled,
 	                               onStart,
 	                               onRegenerate,
+			                               onGenerateNew,
                                }) => (
 	<div className="space-y-2">
 		{!currentPrompt ? (
-			<StartButton
-				onClick={onStart}
-				disabled={isStartDisabled || isGeneratingPrompt}
-				isLoading={isGeneratingPrompt}
-			/>
+			<StartButton onClick={onStart} disabled={isStartDisabled || isGeneratingPrompt} isLoading={isGeneratingPrompt} />
 		) : (
-			<RegenerateButton
-				onClick={onRegenerate}
-				disabled={isGeneratingPrompt}
-				isLoading={isGeneratingPrompt}
-			/>
+			<div className="flex gap-2 flex-wrap">
+				<GenerateNewButton onClick={onGenerateNew} disabled={isGeneratingPrompt} isLoading={isGeneratingPrompt} />
+				<RegenerateButton onClick={onRegenerate} disabled={isGeneratingPrompt} isLoading={isGeneratingPrompt} />
+			</div>
 		)}
 	</div>
-);
+)
 
 const StartButton = ({ onClick, disabled, isLoading }) => (
 	<motion.div
@@ -44,16 +40,23 @@ const StartButton = ({ onClick, disabled, isLoading }) => (
 	</motion.div>
 );
 
+
+const GenerateNewButton = ({ onClick, disabled, isLoading }) => (
+	<motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+		<Button onClick={onClick} disabled={disabled} variant="outline" className="w-full">
+			{isLoading && <LoadingSpinner />}
+			Generate New Prompt
+		</Button>
+	</motion.div>
+)
+
 const RegenerateButton = ({ onClick, disabled, isLoading }) => (
-	<motion.div
-		whileHover={{ scale: 1.02 }}
-		whileTap={{ scale: 0.98 }}
-	>
+	<motion.div className='flex-1' whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
 		<Button
 			onClick={onClick}
 			disabled={disabled}
-			variant="outline"
-			className="w-full"
+			variant='outline'
+			className=' w-full'
 		>
 			{isLoading && <LoadingSpinner />}
 			Regenerate Prompt

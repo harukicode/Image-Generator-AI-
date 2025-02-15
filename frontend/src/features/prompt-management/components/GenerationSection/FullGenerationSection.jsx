@@ -1,11 +1,10 @@
-import AnimatedPromptDisplay
-  from '@/features/prompt-management/components/GenerationSection/ui/AnimatedPromptDisplay.jsx'
-import KeepHistorySwitch from '@/features/prompt-management/components/GenerationSection/ui/KeepHistorySwitch.jsx'
-import ModelSelect from '@/features/prompt-management/components/GenerationSection/ui/ModelSelect.jsx'
+import AnimatedPromptDisplay from "@/features/prompt-management/components/GenerationSection/ui/AnimatedPromptDisplay.jsx"
+import KeepHistorySwitch from "@/features/prompt-management/components/GenerationSection/ui/KeepHistorySwitch.jsx"
+import ModelSelect from "@/features/prompt-management/components/GenerationSection/ui/ModelSelect.jsx"
 import { Button } from "@/shared/ui/button"
 import { RotateCcw } from "lucide-react"
 import PromptInput from "./PromptInput"
-import ImageUploadDialog from '@/widgets/image-upload/ImageUploadDialog'
+import ImageUploadDialog from "@/widgets/image-upload/ImageUploadDialog"
 import ImageGenerationControls from "./ImageGenerationControls"
 import ImageGenerationButtons from "./ImageGenerationButtons"
 import PromptAdditionsLibrary from "@/features/prompt-management/components/presets/PromptAdditionsLibrary"
@@ -36,56 +35,51 @@ const FullGenerationSection = ({
                                  setMagicPrompt,
                                  isGeneratingImages,
                                  onGenerate,
-                                  isNewPrompt,
+                                 isNewPrompt,
                                  updateCurrentPrompt,
                                  resetPromptOnly,
-                                  isHistoryEnabled,
-                                  setIsHistoryEnabled,
+                                 isHistoryEnabled,
+                                 setIsHistoryEnabled,
                                  selectedModel,
                                  setSelectedModel,
+                                 onGenerateNew, // Add this new prop
                                }) => {
   // Обработчик сброса всех настроек
   const handleReset = () => {
-    setNumImages(4);
-    setContextSize(20);
-    setMagicPrompt('AUTO');
-    setUserPrompt('');
-    onReset();
-  };
+    setNumImages(4)
+    setContextSize(20)
+    setMagicPrompt("AUTO")
+    setUserPrompt("")
+    onReset()
+  }
   
   return (
-    <section className='space-y-2'>
+    <section className="space-y-2">
       {/* Заголовок с загрузкой изображения и кнопкой сброса */}
-      <header className='flex justify-between items-center'>
-        <div className='flex items-center gap-4'>
-          <ModelSelect
-            value={selectedModel}
-            onChange={setSelectedModel}
-          />
+      <header className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <ModelSelect value={selectedModel} onChange={setSelectedModel} />
           <ImageUploadDialog
             setUploadedImage={setUploadedImage}
             resetPromptOnly={resetPromptOnly}
             uploadedImage={uploadedImage}
           />
-          <KeepHistorySwitch
-            isHistoryEnabled={isHistoryEnabled}
-            onToggle={setIsHistoryEnabled}
-          />
+          <KeepHistorySwitch isHistoryEnabled={isHistoryEnabled} onToggle={setIsHistoryEnabled} />
           <Button
-            variant='outline'
-            size='icon'
+            variant="outline"
+            size="icon"
             onClick={handleReset}
-            className='w-6 h-6 flex-shrink-0'
-            title='Reset all settings'
+            className="w-6 h-6 flex-shrink-0"
+            title="Reset all settings"
           >
-            <RotateCcw className='h-3 w-3' />
+            <RotateCcw className="h-3 w-3" />
           </Button>
         </div>
       </header>
       
       {/* Все элементы управления */}
-      <div className='flex flex-wrap items-center gap-2'>
-        <div className='flex items-center gap-2 flex-wrap flex-1 min-w-0'>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
           {/* Базовые элементы управления */}
           <BaseGenerationControls
             contextSize={contextSize}
@@ -106,32 +100,23 @@ const FullGenerationSection = ({
       </div>
       
       {/* Поля ввода промптов */}
-      <div className='space-y-2'>
+      <div className="space-y-2">
         <PromptInput
           value={customPrompt}
           onChange={setCustomPrompt}
-          label='Custom prompt'
-          placeholder='Enter your custom prompt...'
-          className='text-xs xs:text-sm'
-          minHeight='min-h-[80px]'
+          label="Custom prompt"
+          placeholder="Enter your custom prompt..."
+          className="text-xs xs:text-sm"
+          minHeight="min-h-[80px]"
         />
         
         {currentPrompt && (
-          <div className='space-y-1'>
-            <AnimatedPromptDisplay
-              prompt={currentPrompt}
-              isNew={isNewPrompt}
-              onPromptEdit={updateCurrentPrompt}
-            />
-            <div className='space-y-1'>
-              <div className='flex justify-between items-center'>
-                <label className='text-xs font-medium text-gray-700'>
-                  Customize prompt or provide feedback
-                </label>
-                <PromptAdditionsLibrary
-                  onSelectAddition={setUserPrompt}
-                  className='scale-90'
-                />
+          <div className="space-y-1">
+            <AnimatedPromptDisplay prompt={currentPrompt} isNew={isNewPrompt} onPromptEdit={updateCurrentPrompt} />
+            <div className="space-y-1">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-medium text-gray-700">Customize prompt or provide feedback</label>
+                <PromptAdditionsLibrary onSelectAddition={setUserPrompt} className="scale-90" />
               </div>
               <PromptInput
                 value={userPrompt}
@@ -154,9 +139,11 @@ const FullGenerationSection = ({
         onStart={onStartPromptGeneration}
         onRegenerate={onRegeneratePrompt}
         onGenerate={onGenerate}
+        onGenerateNew={onGenerateNew} // Add this new prop
       />
     </section>
-  );
-};
+  )
+}
 
-export default FullGenerationSection;
+export default FullGenerationSection
+

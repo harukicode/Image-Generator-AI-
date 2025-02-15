@@ -34,7 +34,9 @@ export function PromptsOnlyTab() {
 	const handleRegeneratePrompt = () => {
 		regeneratePrompt(userPrompt, contextSize, companyName, selectedModel);
 	};
-	
+	const handleGenerateNewPrompt = () => {
+		generatePrompt(uploadedImage, contextSize, companyName, selectedModel)
+	}
 	return (
 		<div className="h-full w-full">
 			<div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 h-full">
@@ -60,6 +62,8 @@ export function PromptsOnlyTab() {
 					updateCurrentPrompt={updateCurrentPrompt}
 					selectedModel={selectedModel}
 					setSelectedModel={setSelectedModel}
+					onGenerateNew={handleGenerateNewPrompt}
+				
 				/>
 				
 				{error && (
