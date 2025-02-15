@@ -34,15 +34,17 @@ export function FullGenerationTab() {
 		updateCurrentPrompt,
 		resetPromptOnly,
 		isHistoryEnabled,
-		setIsHistoryEnabled
+		setIsHistoryEnabled,
+		selectedModel,
+		setSelectedModel,
 	} = useFullGenerationStore();
 	
 	const handleStartPromptGeneration = () => {
-		generatePrompt(uploadedImage, contextSize, companyName);
+		generatePrompt(uploadedImage, contextSize, companyName, selectedModel);
 	};
 	
 	const handleRegeneratePrompt = () => {
-		regeneratePrompt(userPrompt, contextSize, companyName);
+		regeneratePrompt(userPrompt, contextSize, companyName, selectedModel);
 	};
 	
 	return (
@@ -77,6 +79,8 @@ export function FullGenerationTab() {
 						resetPromptOnly={resetPromptOnly}
 						isHistoryEnabled={isHistoryEnabled}
 						setIsHistoryEnabled={setIsHistoryEnabled}
+						selectedModel={selectedModel}
+						setSelectedModel={setSelectedModel}
 					/>
 				</div>
 			</div>

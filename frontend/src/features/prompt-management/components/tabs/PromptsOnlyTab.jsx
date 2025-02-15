@@ -22,16 +22,17 @@ export function PromptsOnlyTab() {
 		reset,
 		isNewPrompt,
 		updateCurrentPrompt,
-		resetPromptOnly
+		resetPromptOnly,
+		selectedModel,
+		setSelectedModel
 	} = usePromptsOnlyStore();
 	
-	// Создаем обработчики, использующие методы стора
 	const handleStartPromptGeneration = () => {
-		generatePrompt(uploadedImage, contextSize, companyName);
+		generatePrompt(uploadedImage, contextSize, companyName, selectedModel);
 	};
 	
 	const handleRegeneratePrompt = () => {
-		regeneratePrompt(userPrompt, contextSize, companyName);
+		regeneratePrompt(userPrompt, contextSize, companyName, selectedModel);
 	};
 	
 	return (
@@ -57,6 +58,8 @@ export function PromptsOnlyTab() {
 					onReset={reset}
 					resetPromptOnly={resetPromptOnly}
 					updateCurrentPrompt={updateCurrentPrompt}
+					selectedModel={selectedModel}
+					setSelectedModel={setSelectedModel}
 				/>
 				
 				{error && (

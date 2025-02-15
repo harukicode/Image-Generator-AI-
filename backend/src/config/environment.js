@@ -8,7 +8,7 @@ const PROJECT_ROOT = path.join(__dirname, '../../');
 
 dotenv.config({ path: path.join(PROJECT_ROOT, '.env') });
 
-const requiredEnvVars = ['OPENAI_API_KEY', 'IDEOGRAM_API_KEY'];
+const requiredEnvVars = ['OPENAI_API_KEY', 'IDEOGRAM_API_KEY', 'ANTHROPIC_API_KEY'];
 for (const envVar of requiredEnvVars) {
 	if (!process.env[envVar]) {
 		throw new Error(`Missing required environment variable: ${envVar}`);
@@ -21,6 +21,7 @@ export const config = {
 	
 	openaiApiKey: process.env.OPENAI_API_KEY,
 	ideogramApiKey: process.env.IDEOGRAM_API_KEY,
+	anthropicApiKey: process.env.ANTHROPIC_API_KEY,
 	
 	frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
 	

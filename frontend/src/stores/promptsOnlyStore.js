@@ -13,8 +13,10 @@ export const usePromptsOnlyStore = create((set, get) => ({
 	isNewPrompt: false,
 	error: null,
 	chatContext: null, // Added this from usePromptGeneration
+	selectedModel: 'gpt',
 	
 	// Basic setters
+	setSelectedModel: (model) => set({ selectedModel: model }),
 	setUploadedImage: (image) => set({ uploadedImage: image }),
 	setContextSize: (size) => set({ contextSize: size }),
 	setCompanyName: (name) => set({ companyName: name }),
@@ -29,7 +31,7 @@ export const usePromptsOnlyStore = create((set, get) => ({
 	},
 	
 	// Generate prompt with API integration
-	generatePrompt: async (image, contextSize, companyName) => {
+	generatePrompt: async (image, contextSize, companyName, selectedModel) => {
 		const state = get();
 		
 		if (!image || !state.customPrompt) {
@@ -40,7 +42,7 @@ export const usePromptsOnlyStore = create((set, get) => ({
 		
 		try {
 			const processedPrompt = state.replaceCompanyName(state.customPrompt, companyName);
-			const response = await promptApi.generatePrompt(image, processedPrompt, contextSize);
+			const response = await promptApi.generatePrompt(image, processedPrompt, contextSize, selectedModel);
 			
 			if (response.success) {
 				set({
@@ -65,13 +67,13 @@ export const usePromptsOnlyStore = create((set, get) => ({
 	},
 	
 	// Regenerate prompt with API integration
-	regeneratePrompt: async (userPrompt, contextSize, companyName) => {
+	regeneratePrompt: async (userPrompt, contextSize, companyName, selectedModel) => {
 		const state = get();
 		set({ isGeneratingPrompt: true, error: null });
 		
 		try {
 			const processedUserPrompt = state.replaceCompanyName(userPrompt, companyName);
-			const response = await promptApi.regeneratePrompt(state.chatContext, processedUserPrompt);
+			const response = await promptApi.regeneratePrompt(state.chatContext, processedUserPrompt, selectedModel);
 			
 			if (response.success) {
 				set({

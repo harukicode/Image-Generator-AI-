@@ -1,6 +1,7 @@
 import AnimatedPromptDisplay
   from '@/features/prompt-management/components/GenerationSection/ui/AnimatedPromptDisplay.jsx'
 import KeepHistorySwitch from '@/features/prompt-management/components/GenerationSection/ui/KeepHistorySwitch.jsx'
+import ModelSelect from '@/features/prompt-management/components/GenerationSection/ui/ModelSelect.jsx'
 import { Button } from "@/shared/ui/button"
 import { RotateCcw } from "lucide-react"
 import PromptInput from "./PromptInput"
@@ -40,6 +41,8 @@ const FullGenerationSection = ({
                                  resetPromptOnly,
                                   isHistoryEnabled,
                                   setIsHistoryEnabled,
+                                 selectedModel,
+                                 setSelectedModel,
                                }) => {
   // Обработчик сброса всех настроек
   const handleReset = () => {
@@ -55,9 +58,10 @@ const FullGenerationSection = ({
       {/* Заголовок с загрузкой изображения и кнопкой сброса */}
       <header className='flex justify-between items-center'>
         <div className='flex items-center gap-4'>
-          <h2 className='text-base xs:text-lg sm:text-xl font-semibold text-[#4339CA]'>
-            Enter custom prompt
-          </h2>
+          <ModelSelect
+            value={selectedModel}
+            onChange={setSelectedModel}
+          />
           <ImageUploadDialog
             setUploadedImage={setUploadedImage}
             resetPromptOnly={resetPromptOnly}
@@ -81,7 +85,7 @@ const FullGenerationSection = ({
       
       {/* Все элементы управления */}
       <div className='flex flex-wrap items-center gap-2'>
-        <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
+        <div className='flex items-center gap-2 flex-wrap flex-1 min-w-0'>
           {/* Базовые элементы управления */}
           <BaseGenerationControls
             contextSize={contextSize}

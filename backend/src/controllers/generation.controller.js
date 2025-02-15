@@ -1,3 +1,4 @@
+import { claudeService } from '../services/claude.service.js'
 import { openAIService } from '../services/openai.service.js';
 import { ideogramService } from '../services/ideogram.service.js';
 import { ResponseFormatter } from '../utils/asyncHandler.js';
@@ -5,10 +6,11 @@ import { ResponseFormatter } from '../utils/asyncHandler.js';
 export const GenerationController = {
 	async generatePrompt(req, res) {
 		try {
-			const { customPrompt, contextSize } = req.body;
+			const { customPrompt, contextSize, model = 'gpt' } = req.body;
 			console.log('GeneratePrompt - Request received:', {
 				customPrompt,
 				contextSize,
+				model,
 				hasFile: !!req.file
 			});
 			
@@ -19,6 +21,13 @@ export const GenerationController = {
 				});
 			}
 			
+			if (!['gpt', 'claude'].includes(model)) {
+				return res.status(400).json({
+					success: false,
+					error: 'Invalid model specified. Must be either "gpt" or "claude"'
+				});
+			}
+			
 			if (!customPrompt) {
 				return res.status(400).json({
 					success: false,
@@ -26,15 +35,19 @@ export const GenerationController = {
 				});
 			}
 			
+			// Выбираем сервис в зависимости от модели
+			const service = model === 'claude' ? claudeService : openAIService;
+			
 			const imageBuffer = req.file.buffer;
 			
-			const result = await openAIService.generatePrompt(
+			const result = await service.generatePrompt(
 				imageBuffer,
 				customPrompt,
 				parseInt(contextSize) || undefined
 			);
 			
 			console.log('GeneratePrompt - Success:', {
+				model,
 				promptLength: result.prompt.length,
 				hasContext: !!result.context,
 				contextSize: result.context.length
@@ -58,9 +71,8 @@ export const GenerationController = {
 	
 	async regeneratePrompt(req, res) {
 		try {
-			console.log('RegeneratePrompt - Request received');
-			
-			const { context, userPrompt } = req.body;
+			const { context, userPrompt, model = 'gpt' } = req.body;
+			console.log('RegeneratePrompt - Request received:', { model });
 			
 			if (!context) {
 				return res.status(400).json(ResponseFormatter.error(
@@ -68,12 +80,14 @@ export const GenerationController = {
 				));
 			}
 			
-			const result = await openAIService.regeneratePrompt(
+			const service = model === 'claude' ? claudeService : openAIService;
+			
+			const result = await service.regeneratePrompt(
 				context,
 				userPrompt
 			);
 			
-			console.log('RegeneratePrompt - Success');
+			console.log('RegeneratePrompt - Success:', { model });
 			
 			res.json(ResponseFormatter.success({
 				prompt: result.prompt,

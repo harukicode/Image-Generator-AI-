@@ -4,11 +4,15 @@ export const validatePromptRequest = (req, res, next) => {
 	console.log('ValidatePromptRequest - Body:', req.body);
 	console.log('ValidatePromptRequest - File:', req.file);
 	
-	const { customPrompt } = req.body;
+	const { customPrompt, model } = req.body;
 	
 	if (!customPrompt) {
 		console.log('ValidatePromptRequest - Error: Missing customPrompt');
 		throw new ValidationError('Custom prompt is required');
+	}
+	
+	if (model && !['gpt', 'claude'].includes(model)) {
+		throw new ValidationError('Invalid model specified');
 	}
 	
 	if (!req.file) {
@@ -16,7 +20,6 @@ export const validatePromptRequest = (req, res, next) => {
 		throw new ValidationError('Image file is required');
 	}
 	
-	console.log('ValidatePromptRequest - Validation passed');
 	next();
 };
 

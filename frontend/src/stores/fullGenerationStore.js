@@ -15,7 +15,7 @@ export const useFullGenerationStore = create((set, get) => ({
 	chatContext: null, // Добавляем из usePromptGeneration
 	isNewPrompt: false,
 	isHistoryEnabled: false,
-	
+	selectedModel: 'gpt',
 	// Состояния для генерации изображений
 	numImages: 4,
 	magicPrompt: "AUTO",
@@ -27,6 +27,7 @@ export const useFullGenerationStore = create((set, get) => ({
 	},
 	
 	// Базовые действия
+	setSelectedModel: (model) => set({ selectedModel: model }),
 	setIsHistoryEnabled: (value) => set({ isHistoryEnabled: value }),
 	setUploadedImage: (image) => set({ uploadedImage: image }),
 	setContextSize: (size) => set({ contextSize: size }),
@@ -51,7 +52,7 @@ export const useFullGenerationStore = create((set, get) => ({
 	},
 	
 	// Генерация промптов
-	generatePrompt: async (image, contextSize, companyName) => {
+	generatePrompt: async (image, contextSize, companyName, selectedModel) => {
 		const state = get();
 		if (!image || !state.customPrompt) {
 			throw new Error("Please provide both an image and a prompt");
@@ -61,7 +62,12 @@ export const useFullGenerationStore = create((set, get) => ({
 		
 		try {
 			const processedPrompt = state.replaceCompanyName(state.customPrompt, companyName);
-			const response = await promptApi.generatePrompt(image, processedPrompt, contextSize);
+			const response = await promptApi.generatePrompt(
+				image,
+				processedPrompt,
+				contextSize,
+				selectedModel
+			);
 			
 			if (response.success) {
 				set({
@@ -86,13 +92,13 @@ export const useFullGenerationStore = create((set, get) => ({
 	},
 	
 	// Регенерация промптов
-	regeneratePrompt: async (userPrompt, contextSize, companyName) => {
+	regeneratePrompt: async (userPrompt, contextSize, companyName, selectedModel) => {
 		const state = get();
 		set({ isGeneratingPrompt: true, error: null });
 		
 		try {
 			const processedPrompt = state.replaceCompanyName(userPrompt, companyName);
-			const response = await promptApi.regeneratePrompt(state.chatContext, processedPrompt);
+			const response = await promptApi.regeneratePrompt(state.chatContext, processedPrompt, selectedModel);
 			
 			if (response.success) {
 				set({

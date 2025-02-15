@@ -1,5 +1,6 @@
 import AnimatedPromptDisplay
 	from '@/features/prompt-management/components/GenerationSection/ui/AnimatedPromptDisplay.jsx'
+import ModelSelect from '@/features/prompt-management/components/GenerationSection/ui/ModelSelect.jsx'
 import PresetLibrary from '@/features/prompt-management/components/presets/PresetLibrary.jsx'
 import PromptAdditionsLibrary from '@/features/prompt-management/components/presets/PromptAdditionsLibrary.jsx'
 import { Button } from "@/shared/ui/button"
@@ -30,6 +31,8 @@ const BaseGenerationSection = ({
 			                               isNewPrompt,
 	                               updateCurrentPrompt,
 	                               resetPromptOnly,
+	                               selectedModel,
+	                               setSelectedModel,
                                }) => {
 	// Обработчик сброса базовых настроек
 	const handleReset = () => {
@@ -43,9 +46,10 @@ const BaseGenerationSection = ({
 			{/* Заголовок с загрузкой изображения и кнопкой сброса */}
 			<header className='flex justify-between items-center'>
 				<div className='flex items-center gap-4'>
-					<h2 className='text-base xs:text-lg sm:text-xl font-semibold text-[#4339CA]'>
-						Enter custom prompt
-					</h2>
+					<ModelSelect
+						value={selectedModel}
+						onChange={setSelectedModel}
+					/>
 					<ImageUploadDialog
 						setUploadedImage={setUploadedImage}
 						resetPromptOnly={resetPromptOnly}
