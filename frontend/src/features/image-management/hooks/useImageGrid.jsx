@@ -9,7 +9,7 @@ export const useImageGrid = (images, onImageDelete) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const { toast } = useToast();
 	
-	const ITEMS_PER_PAGE = 6;
+	const ITEMS_PER_PAGE = 12;
 	const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
 	
 	const getCurrentPageImages = () => {

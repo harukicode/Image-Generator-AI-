@@ -5,15 +5,17 @@ import { LoadingView } from '@/features/image-management/components/results/view
 import { AnimatePresence } from "framer-motion";
 import { ErrorView } from "./views/ErrorView.jsx";
 import { ResultContent } from "./ResultContent";
+import { Loader2 } from "lucide-react";
 
 export const ResultSection = ({
                                 generatedImages = [],
                                 isGenerating = false,
                                 error = null,
                                 onImageDelete,
-                                generationProgress = { totalBatches: 0, completedBatches: 0 }
+                                generationProgress = { totalBatches: 0, completedBatches: 0 },
+                                isHistoryEnabled = false
                               }) => {
-  const { isImageDeleted, markImageAsDeleted } = useImageContext();
+  const { isImageDeleted } = useImageContext();
   const [localImages, setLocalImages] = useState(generatedImages);
   
   useEffect(() => {
@@ -31,11 +33,6 @@ export const ResultSection = ({
       ? deletedImage.split('/').pop()
       : deletedImage.filename;
     
-    console.log('Handling image deletion in ResultSection:', {
-      deletedImage,
-      deletedFilename
-    });
-    
     setLocalImages(prevImages =>
       prevImages.filter(img => {
         const currentFilename = typeof img === 'string'
@@ -45,31 +42,40 @@ export const ResultSection = ({
       })
     );
     
-    if (onImageDelete) {
-      onImageDelete(deletedFilename);
-    }
+    onImageDelete?.(deletedFilename);
   };
   
   const renderContent = () => {
-    if (isGenerating) {
+    if (localImages.length === 0 && !isGenerating) {
+      return <EmptyView />;
+    }
+    
+    if (localImages.length > 0 || isHistoryEnabled) {
       return (
-        <LoadingView
-          generationProgress={generationProgress}
-          generatedImages={localImages}
-        />
+        <div className="relative">
+          <ResultContent
+            images={localImages}
+            onImageDelete={handleImageDelete}
+          />
+          
+          {isGenerating && (
+            <div className="fixed bottom-8 right-8 bg-white rounded-full shadow-lg p-4 flex items-center gap-3">
+              <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+              <span className="text-sm text-gray-600 whitespace-nowrap">
+                Generating batch {generationProgress.completedBatches + 1} of {generationProgress.totalBatches}
+              </span>
+            </div>
+          )}
+        </div>
       );
     }
     
-    if (localImages.length > 0) {
-      return (
-        <ResultContent
-          images={localImages}
-          onImageDelete={handleImageDelete}
-        />
-      );
-    }
-    
-    return <EmptyView />;
+    return (
+      <LoadingView
+        generationProgress={generationProgress}
+        generatedImages={localImages}
+      />
+    );
   };
   
   return (

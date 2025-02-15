@@ -116,7 +116,7 @@ function GeneratedImagesLibrary() {
   
   return (
     <div className="container mx-auto py-1">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-1">
         {selectedImages.size > 0 && (
           <Button
             variant="default"

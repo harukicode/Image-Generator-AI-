@@ -11,7 +11,7 @@ function GeneratorPage() {
 		<ImageProvider>
 			<div className="w-full flex flex-col min-h-screen ">
 				<Tabs defaultValue="image-generator" className="flex-1 flex flex-col w-full">
-					<div className="w-full mb-4">
+					<div className="w-full mb-1.5">
 						<TabsList className="w-full bg-white rounded-lg p-1 shadow-sm">
 							<TabsTrigger value="image-generator">
 								Image Generator

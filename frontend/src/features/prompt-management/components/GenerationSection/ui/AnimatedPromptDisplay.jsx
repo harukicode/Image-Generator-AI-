@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Pencil } from 'lucide-react';
+import { Pencil, Copy, Check } from 'lucide-react';
 import { Button } from "@/shared/ui/button";
 
 const AnimatedPromptDisplay = ({ prompt, isNew = false, onPromptEdit }) => {
-	const [shouldAnimate, setShouldAnimate] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedPrompt, setEditedPrompt] = useState(prompt);
-	const [animationState, setAnimationState] = useState('initial'); // 'initial', 'glowing', 'fading'
+	const [animationState, setAnimationState] = useState('initial');
+	const [isCopied, setIsCopied] = useState(false);
 	
 	useEffect(() => {
 		let glowTimer;
@@ -33,6 +33,22 @@ const AnimatedPromptDisplay = ({ prompt, isNew = false, onPromptEdit }) => {
 		};
 	}, [isNew]);
 	
+	useEffect(() => {
+		setEditedPrompt(prompt);
+	}, [prompt]);
+	
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText(editedPrompt);
+			setIsCopied(true);
+			setTimeout(() => {
+				setIsCopied(false);
+			}, 2000);
+		} catch (err) {
+			console.error('Failed to copy text:', err);
+		}
+	};
+	
 	const getGlowStyle = () => {
 		switch (animationState) {
 			case 'glowing':
@@ -43,10 +59,6 @@ const AnimatedPromptDisplay = ({ prompt, isNew = false, onPromptEdit }) => {
 				return '0 0 0 0 rgba(34, 197, 94, 0)';
 		}
 	};
-	
-	useEffect(() => {
-		setEditedPrompt(prompt);
-	}, [prompt]);
 	
 	const handleEdit = () => {
 		setIsEditing(true);
@@ -81,16 +93,32 @@ const AnimatedPromptDisplay = ({ prompt, isNew = false, onPromptEdit }) => {
 					<h3 className="text-xs font-medium text-gray-700 mb-1">
 						Generated Prompt:
 					</h3>
-					{!isEditing && (
-						<Button
-							variant="ghost"
-							size="icon"
-							className="h-6 w-6 hover:bg-gray-100"
-							onClick={handleEdit}
-						>
-							<Pencil className="h-3.5 w-3.5 text-gray-500" />
-						</Button>
-					)}
+					<div className="flex gap-2">
+						{!isEditing && (
+							<>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-6 w-6 hover:bg-gray-200"
+									onClick={handleEdit}
+								>
+									<Pencil className="h-3.5 w-3.5 text-gray-500" />
+								</Button>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-6 w-6 hover:bg-gray-200"
+									onClick={handleCopy}
+								>
+									{isCopied ? (
+										<Check className="h-3.5 w-3.5 text-green-500" />
+									) : (
+										<Copy className="h-3.5 w-3.5 text-gray-500" />
+									)}
+								</Button>
+							</>
+						)}
+					</div>
 				</div>
 				
 				{isEditing ? (

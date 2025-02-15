@@ -103,6 +103,7 @@ export function FullGenerationTab() {
 						error={error}
 						onImageDelete={deleteImage}
 						generationProgress={generationProgress}
+						isHistoryEnabled={isHistoryEnabled}
 					/>
 				</div>
 			</motion.div>

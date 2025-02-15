@@ -5,13 +5,31 @@ import { Button } from "@/shared/ui/button.jsx"
 import { ImageCard } from "./ImageCard"
 import { Pagination } from "./Pagination"
 import { useImageGrid } from "../../hooks/useImageGrid"
+import { useImageCache } from "../../hooks/useImageCache"
 import DownloadDialog from "../ui/download-dialog.jsx"
 import { useState, useEffect } from 'react'
+import { AnimatePresence, motion } from "framer-motion"
+
+const variants = {
+	enter: (direction) => ({
+		x: direction > 0 ? 100 : -100,
+		opacity: 0
+	}),
+	center: {
+		x: 0,
+		opacity: 1
+	},
+	exit: (direction) => ({
+		x: direction < 0 ? 100 : -100,
+		opacity: 0
+	})
+};
 
 export const ImageGrid = ({ images, onImageDelete }) => {
-	const [localImages, setLocalImages] = useState(images)
-	const { isImageDeleted, markImageAsDeleted } = useImageContext();
-	
+	const [localImages, setLocalImages] = useState(images);
+	const [direction, setDirection] = useState(0);
+	const { isImageDeleted } = useImageContext();
+	const { preloadImages, getCachedImage } = useImageCache(images);
 	
 	useEffect(() => {
 		const filteredImages = images.filter(img => {
@@ -37,6 +55,20 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 		downloadSelectedImages,
 	} = useImageGrid(localImages)
 	
+	// Предзагрузка текущей, следующей и предыдущей страниц
+	useEffect(() => {
+		const preloadCurrentAndAdjacentPages = async () => {
+			const pageSize = 12;
+			const start = Math.max(0, (currentPage - 2) * pageSize);
+			const end = Math.min(localImages.length, (currentPage + 1) * pageSize);
+			
+			const imagesToPreload = localImages.slice(start, end);
+			await preloadImages(imagesToPreload);
+		};
+		
+		preloadCurrentAndAdjacentPages();
+	}, [currentPage, localImages, preloadImages]);
+	
 	const { deleteImage, isDeleting } = useDeleteImage();
 	
 	const handleDelete = (image) => {
@@ -44,11 +76,7 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 			? image.split('/').pop()
 			: (image.filename || image.id?.toString());
 		
-		console.log('Handling delete for image:', { image, filename });
-		
 		deleteImage(image, () => {
-			console.log('Delete success callback for image:', { image, filename });
-			
 			setLocalImages(prev => prev.filter(img => {
 				const currentFilename = typeof img === 'string'
 					? img.split('/').pop()
@@ -56,18 +84,21 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 				return currentFilename !== filename;
 			}));
 			
-			
 			onImageDelete?.(filename);
 		});
 	};
 	
-	if (!localImages?.length) {
-		return (
-			<div className="text-center text-gray-500 p-8">
-				No images available
-			</div>
-		)
-	}
+	const getGlobalIndex = (localIndex) => {
+		return (currentPage - 1) * 12 + localIndex;
+	};
+	
+	const handlePageChange = (newPage) => {
+		if (newPage === currentPage) return;
+		setDirection(newPage > currentPage ? 1 : -1);
+		setCurrentPage(newPage);
+	};
+	
+	const currentImages = getCurrentPageImages();
 	
 	return (
 		<div className="space-y-4">
@@ -87,24 +118,69 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 				onDownload={downloadSelectedImages}
 			/>
 			
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-				{getCurrentPageImages().map((image, index) => (
-					<ImageCard
-						key={typeof image === 'string' ? image : image.id}
-						image={image}
-						index={index}
-						isSelected={selectedImages.has(image)}
-						isHovered={hoveredImage === image}
-						onSelect={toggleImageSelection}
-						onDelete={handleDelete}
-						onHover={setHoveredImage}
-						isDeleting={isDeleting(image)}
-						allImages={getCurrentPageImages()}
-					/>
-				))}
+			<div style={{ minHeight: '450px' }}>
+				<AnimatePresence mode="wait" custom={direction}>
+					<motion.div
+						key={currentPage}
+						custom={direction}
+						variants={variants}
+						initial="enter"
+						animate="center"
+						exit="exit"
+						transition={{
+							x: { type: "spring", stiffness: 300, damping: 30 },
+							opacity: { duration: 0.2 }
+						}}
+					>
+						<motion.div
+							layout
+							className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4"
+						>
+							{currentImages.map((image, index) => (
+								<motion.div
+									key={typeof image === 'string' ? image : image.id}
+									layout
+									initial={{ opacity: 0, scale: 0.9 }}
+									animate={{ opacity: 1, scale: 1 }}
+									exit={{ opacity: 0, scale: 0.9 }}
+									transition={{
+										opacity: { duration: 0.2 },
+										scale: { duration: 0.2 },
+										layout: { duration: 0.2 }
+									}}
+								>
+									<ImageCard
+										image={image}
+										imageUrl={getCachedImage(image)}
+										index={getGlobalIndex(index)}
+										isSelected={selectedImages.has(image)}
+										isHovered={hoveredImage === image}
+										onSelect={toggleImageSelection}
+										onDelete={handleDelete}
+										onHover={setHoveredImage}
+										isDeleting={isDeleting(image)}
+										allImages={localImages}
+									/>
+								</motion.div>
+							))}
+						</motion.div>
+					</motion.div>
+				</AnimatePresence>
+				
+				{currentImages.length === 0 && (
+					<div className="flex items-center justify-center h-full">
+						<div className="text-center text-gray-500">
+							No images available
+						</div>
+					</div>
+				)}
 			</div>
 			
-			<Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+			<Pagination
+				currentPage={currentPage}
+				totalPages={totalPages}
+				onPageChange={handlePageChange}
+			/>
 		</div>
 	)
 }

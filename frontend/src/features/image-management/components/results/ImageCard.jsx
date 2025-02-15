@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { Trash2, Maximize2 } from "lucide-react";
 import { Button } from "@/shared/ui/button.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ImagePreviewModal from "./ImagePreviewModal";
 
 export const ImageCard = ({
 	                          image,
+	                          imageUrl,
 	                          index,
 	                          isSelected,
 	                          isHovered,
@@ -17,6 +18,13 @@ export const ImageCard = ({
                           }) => {
 	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 	const [currentImageIndex, setCurrentImageIndex] = useState(index);
+	const [isLoaded, setIsLoaded] = useState(false);
+	
+	useEffect(() => {
+		const img = new Image();
+		img.src = imageUrl;
+		img.onload = () => setIsLoaded(true);
+	}, [imageUrl]);
 	
 	const handleNext = () => {
 		if (currentImageIndex < allImages.length - 1) {
@@ -38,56 +46,64 @@ export const ImageCard = ({
 	return (
 		<>
 			<motion.div
-				className="relative aspect-square group cursor-pointer"
+				className="relative aspect-square group"
 				initial={{ opacity: 0, scale: 0.9 }}
 				animate={{ opacity: isDeleting ? 0.5 : 1, scale: 1 }}
-				transition={{ delay: index * 0.1 }}
+				transition={{ duration: 0.2 }}
 				onMouseEnter={() => onHover(image)}
 				onMouseLeave={() => onHover(null)}
 				onClick={() => onSelect(image)}
 			>
+
+				{!isLoaded && (
+					<div className="w-full h-full bg-gray-100 animate-pulse rounded-lg" />
+				)}
+				
+
 				<img
-					src={`http://localhost:3000${image}`}
+					src={imageUrl}
 					alt={`Generated ${index + 1}`}
-					className={`w-full h-full object-cover rounded-lg transition-all duration-200 ${
-						isSelected ? 'ring-4 ring-blue-500 ring-offset-2' : ''
-					}`}
+					className={`w-full h-full object-cover rounded-lg transition-all duration-200
+            ${isSelected ? 'ring-4 ring-blue-500 ring-offset-2' : ''}
+            ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+					style={{ position: isLoaded ? 'relative' : 'absolute' }}
 				/>
 				
-				<div
-					className={`absolute inset-0 bg-black/40 transition-opacity duration-200 rounded-lg ${
-						isHovered ? 'opacity-100' : 'opacity-0'
-					}`}
-				>
-					<div className="absolute top-2 right-2 flex gap-2">
-						<Button
-							variant="secondary"
-							size="icon"
-							className="w-8 h-8 bg-white/80 hover:bg-white"
-							onClick={(e) => {
-								e.stopPropagation();
-								setCurrentImageIndex(index);
-								setIsPreviewOpen(true);
-							}}
-							disabled={isDeleting}
-						>
-							<Maximize2 className="h-4 w-4" />
-						</Button>
-						
-						<Button
-							variant="secondary"
-							size="icon"
-							className="w-8 h-8 bg-white/80 hover:bg-white"
-							onClick={(e) => {
-								e.stopPropagation();
-								onDelete(image);
-							}}
-							disabled={isDeleting}
-						>
-							<Trash2 className="h-4 w-4" />
-						</Button>
+				{isLoaded && (
+					<div
+						className={`absolute inset-0 bg-black/40 transition-opacity duration-200 rounded-lg ${
+							isHovered ? 'opacity-100' : 'opacity-0'
+						}`}
+					>
+						<div className="absolute top-2 right-2 flex gap-2">
+							<Button
+								variant="secondary"
+								size="icon"
+								className="w-8 h-8 bg-white/80 hover:bg-white"
+								onClick={(e) => {
+									e.stopPropagation();
+									setIsPreviewOpen(true);
+								}}
+								disabled={isDeleting}
+							>
+								<Maximize2 className="h-4 w-4" />
+							</Button>
+							
+							<Button
+								variant="secondary"
+								size="icon"
+								className="w-8 h-8 bg-white/80 hover:bg-white"
+								onClick={(e) => {
+									e.stopPropagation();
+									onDelete(image);
+								}}
+								disabled={isDeleting}
+							>
+								<Trash2 className="h-4 w-4" />
+							</Button>
+						</div>
 					</div>
-				</div>
+				)}
 				
 				{isDeleting && (
 					<div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
