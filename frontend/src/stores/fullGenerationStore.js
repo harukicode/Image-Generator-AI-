@@ -14,6 +14,7 @@ export const useFullGenerationStore = create((set, get) => ({
 	error: null,
 	chatContext: null, // Добавляем из usePromptGeneration
 	isNewPrompt: false,
+	isHistoryEnabled: false,
 	
 	// Состояния для генерации изображений
 	numImages: 4,
@@ -26,6 +27,7 @@ export const useFullGenerationStore = create((set, get) => ({
 	},
 	
 	// Базовые действия
+	setIsHistoryEnabled: (value) => set({ isHistoryEnabled: value }),
 	setUploadedImage: (image) => set({ uploadedImage: image }),
 	setContextSize: (size) => set({ contextSize: size }),
 	setCompanyName: (name) => set({ companyName: name }),
@@ -123,7 +125,8 @@ export const useFullGenerationStore = create((set, get) => ({
 		
 		set({
 			isGeneratingImages: true,
-			generatedImages: [],
+			// Сохраняем предыдущие изображения, если включен режим истории
+			generatedImages: state.isHistoryEnabled ? state.generatedImages : [],
 			error: null
 		});
 		
@@ -137,7 +140,7 @@ export const useFullGenerationStore = create((set, get) => ({
 				}
 			});
 			
-			const images = await generateAllBatches({
+			const newImages = await generateAllBatches({
 				batches,
 				prompt: currentPrompt,
 				magicPrompt: state.magicPrompt,
@@ -147,7 +150,10 @@ export const useFullGenerationStore = create((set, get) => ({
 							...state.generationProgress,
 							completedBatches
 						},
-						generatedImages: allImages
+						// При обновлении прогресса добавляем новые изображения к существующим, если включен режим истории
+						generatedImages: state.isHistoryEnabled
+							? [...state.generatedImages, ...allImages.filter(img => !state.generatedImages.includes(img))]
+							: allImages
 					}));
 				},
 				onError: (error) => {
@@ -155,7 +161,12 @@ export const useFullGenerationStore = create((set, get) => ({
 				}
 			});
 			
-			set({ generatedImages: images });
+			// Обновляем состояние с новыми изображениями
+			set(state => ({
+				generatedImages: state.isHistoryEnabled
+					? [...state.generatedImages, ...newImages.filter(img => !state.generatedImages.includes(img))]
+					: newImages
+			}));
 		} catch (err) {
 			console.error('Generation error:', err);
 			set({ error: err.message });

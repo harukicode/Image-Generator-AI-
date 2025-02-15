@@ -1,5 +1,6 @@
 import AnimatedPromptDisplay
   from '@/features/prompt-management/components/GenerationSection/ui/AnimatedPromptDisplay.jsx'
+import KeepHistorySwitch from '@/features/prompt-management/components/GenerationSection/ui/KeepHistorySwitch.jsx'
 import { Button } from "@/shared/ui/button"
 import { RotateCcw } from "lucide-react"
 import PromptInput from "./PromptInput"
@@ -36,7 +37,9 @@ const FullGenerationSection = ({
                                  onGenerate,
                                   isNewPrompt,
                                  updateCurrentPrompt,
-                                 resetPromptOnly
+                                 resetPromptOnly,
+                                  isHistoryEnabled,
+                                  setIsHistoryEnabled,
                                }) => {
   // Обработчик сброса всех настроек
   const handleReset = () => {
@@ -59,6 +62,10 @@ const FullGenerationSection = ({
             setUploadedImage={setUploadedImage}
             resetPromptOnly={resetPromptOnly}
             uploadedImage={uploadedImage}
+          />
+          <KeepHistorySwitch
+            isHistoryEnabled={isHistoryEnabled}
+            onToggle={setIsHistoryEnabled}
           />
           <Button
             variant='outline'

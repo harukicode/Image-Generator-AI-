@@ -33,6 +33,8 @@ export function FullGenerationTab() {
 		isNewPrompt,
 		updateCurrentPrompt,
 		resetPromptOnly,
+		isHistoryEnabled,
+		setIsHistoryEnabled
 	} = useFullGenerationStore();
 	
 	const handleStartPromptGeneration = () => {
@@ -73,6 +75,8 @@ export function FullGenerationTab() {
 						onReset={reset}
 						updateCurrentPrompt={updateCurrentPrompt}
 						resetPromptOnly={resetPromptOnly}
+						isHistoryEnabled={isHistoryEnabled}
+						setIsHistoryEnabled={setIsHistoryEnabled}
 					/>
 				</div>
 			</div>
