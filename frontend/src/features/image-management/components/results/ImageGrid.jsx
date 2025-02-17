@@ -118,7 +118,7 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 				onDownload={downloadSelectedImages}
 			/>
 			
-			<div style={{ minHeight: '450px' }} className="relative overflow-hidden">
+			<div className="relative overflow-hidden min-h-[450px]">
 				<AnimatePresence mode="wait" custom={direction}>
 					<motion.div
 						key={currentPage}
@@ -131,11 +131,11 @@ export const ImageGrid = ({ images, onImageDelete }) => {
 							x: { type: "spring", stiffness: 300, damping: 30 },
 							opacity: { duration: 0.2 }
 						}}
-						className="absolute w-full"
+						className="w-full"
 					>
 						<motion.div
 							layout
-							className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4"
+							className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 pb-4"
 						>
 							{currentImages.map((image, index) => (
 								<motion.div
