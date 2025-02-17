@@ -12,15 +12,17 @@ export const useFullGenerationStore = create((set, get) => ({
 	currentPrompt: "",
 	isGeneratingPrompt: false,
 	error: null,
-	chatContext: null, // Добавляем из usePromptGeneration
+	chatContext: null,
 	isNewPrompt: false,
 	isHistoryEnabled: false,
 	selectedModel: 'gpt',
+	
 	// Состояния для генерации изображений
 	numImages: 4,
 	magicPrompt: "AUTO",
 	isGeneratingImages: false,
 	generatedImages: [],
+	currentBatchSession: null,
 	generationProgress: {
 		totalBatches: 0,
 		completedBatches: 0,
@@ -123,23 +125,30 @@ export const useFullGenerationStore = create((set, get) => ({
 	},
 	
 	// Генерация изображений
-	generateImages: async (currentPrompt) => {
+	generateImages: async (currentPrompt, forceNewSession = true) => {
 		const state = get();
 		if (!currentPrompt || !state.numImages) {
 			throw new Error("Please provide a prompt and number of images");
 		}
 		
+		const sessionId = forceNewSession ? `${Date.now()}-${currentPrompt}` : state.currentBatchSession;
+		
 		set({
 			isGeneratingImages: true,
-			// Сохраняем предыдущие изображения, если включен режим истории
-			generatedImages: state.isHistoryEnabled ? state.generatedImages : [],
-			error: null
+			error: null,
+			// Очищаем предыдущие изображения только если:
+			// 1. История выключена И
+			// 2. Начинается новая генерация
+			generatedImages: (!state.isHistoryEnabled && forceNewSession)
+				? []
+				: state.generatedImages
 		});
 		
 		try {
 			const batches = createBatches(parseInt(state.numImages));
 			
 			set({
+				currentBatchSession: sessionId,
 				generationProgress: {
 					totalBatches: batches.length,
 					completedBatches: 0,
@@ -156,10 +165,11 @@ export const useFullGenerationStore = create((set, get) => ({
 							...state.generationProgress,
 							completedBatches
 						},
-						// При обновлении прогресса добавляем новые изображения к существующим, если включен режим истории
-						generatedImages: state.isHistoryEnabled
-							? [...state.generatedImages, ...allImages.filter(img => !state.generatedImages.includes(img))]
-							: allImages
+						// Добавляем только новые изображения из текущего батча
+						generatedImages: [
+							...state.generatedImages,
+							...allImages.filter(img => !state.generatedImages.includes(img))
+						]
 					}));
 				},
 				onError: (error) => {
@@ -167,12 +177,14 @@ export const useFullGenerationStore = create((set, get) => ({
 				}
 			});
 			
-			// Обновляем состояние с новыми изображениями
+			// Добавляем только новые изображения
 			set(state => ({
-				generatedImages: state.isHistoryEnabled
-					? [...state.generatedImages, ...newImages.filter(img => !state.generatedImages.includes(img))]
-					: newImages
+				generatedImages: [
+					...state.generatedImages,
+					...newImages.filter(img => !state.generatedImages.includes(img))
+				]
 			}));
+			
 		} catch (err) {
 			console.error('Generation error:', err);
 			set({ error: err.message });
@@ -196,7 +208,6 @@ export const useFullGenerationStore = create((set, get) => ({
 	
 	updateCurrentPrompt: (prompt) => set({ currentPrompt: prompt }),
 	
-	
 	resetPromptOnly: () => set({
 		currentPrompt: "",
 		isNewPrompt: false,
@@ -204,7 +215,6 @@ export const useFullGenerationStore = create((set, get) => ({
 		chatContext: null,
 	}),
 	
-	// Сброс состояний
 	reset: () => set({
 		contextSize: 5,
 		companyName: "",
@@ -216,7 +226,6 @@ export const useFullGenerationStore = create((set, get) => ({
 	}),
 	
 	resetAll: () => set({
-		// Сброс базовых состояний
 		uploadedImage: null,
 		contextSize: 20,
 		companyName: "",
@@ -225,11 +234,11 @@ export const useFullGenerationStore = create((set, get) => ({
 		currentPrompt: "",
 		error: null,
 		chatContext: null,
-		// Сброс состояний генерации изображений
 		numImages: 4,
 		magicPrompt: "AUTO",
 		isGeneratingImages: false,
 		generatedImages: [],
+		currentBatchSession: null,
 		generationProgress: {
 			totalBatches: 0,
 			completedBatches: 0,

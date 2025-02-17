@@ -10,12 +10,22 @@ import { Pagination } from "../../results/Pagination"
 import axios from "axios"
 import DownloadDialog from "../../ui/download-dialog.jsx"
 
+const pageVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 }
+};
+
+const imageVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 }
+};
+
 function GeneratedImagesLibrary() {
   const [images, setImages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const { deleteImage, isDeleting } = useDeleteImage()
-  const { isDownloadDialogOpen, setIsDownloadDialogOpen, imageToDownload, setImageToDownload, downloadImage } =
-    useImageDownload()
+  const { isDownloadDialogOpen, setIsDownloadDialogOpen, imageToDownload, setImageToDownload, downloadImage } = useImageDownload()
   
   const {
     selectedImages,
@@ -61,17 +71,11 @@ function GeneratedImagesLibrary() {
     })
   }
   
-  const handleBulkDelete = () => {
-    const selectedArray = Array.from(selectedImages)
-    selectedArray.forEach((image) => handleDelete(image))
-    clearSelection()
-  }
-  
   const handleDownload = async (companyName) => {
     try {
-      const images = imageToDownload ? [imageToDownload] : Array.from(selectedImages)
+      const imagesToDownload = imageToDownload ? [imageToDownload] : Array.from(selectedImages)
       
-      for (const [index, image] of images.entries()) {
+      for (const [index, image] of imagesToDownload.entries()) {
         const response = await axios({
           url: `http://localhost:3000/generated/${image.filename}`,
           method: "GET",
@@ -114,6 +118,8 @@ function GeneratedImagesLibrary() {
     return <div className="flex justify-center items-center h-64">Loading...</div>
   }
   
+  const currentImages = getCurrentPageImages()
+  
   return (
     <div className="container mx-auto py-1">
       <div className="flex justify-between items-center mb-1">
@@ -142,68 +148,83 @@ function GeneratedImagesLibrary() {
         <div className="text-center text-gray-500 mt-8">No generated images yet</div>
       ) : (
         <div className="space-y-4">
-          
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <AnimatePresence mode="wait">
-              {getCurrentPageImages().map((image) => (
-                <motion.div
-                  key={image.id}
-                  className="relative group aspect-square"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: isDeleting(image.id) ? 0.5 : 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                  onClick={() => toggleImageSelection(image)}
-                >
-                  <img
-                    src={`http://localhost:3000/generated/${image.filename}`}
-                    alt={`Generated for ${image.company_name}`}
-                    className={`w-full aspect-square object-cover rounded-lg transition-all duration-200 ${
-                      selectedImages.has(image) ? "ring-4 ring-blue-500 ring-offset-2" : ""
-                    }`}
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-2">
-                    <Button
-                      size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg
-                                border border-blue-700 shadow-md hover:shadow-lg transition-all
-                                flex items-center gap-2 font-medium"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setImageToDownload(image)
-                        setIsDownloadDialogOpen(true)
-                      }}
-                      disabled={isDeleting(image.id)}
-                    >
-                      <Download className="w-5 h-5" />
-                      Download
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg
-                                border border-red-700 shadow-md hover:shadow-lg transition-all
-                                flex items-center gap-2 font-medium"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDelete(image)
-                      }}
-                      disabled={isDeleting(image.id)}
-                    >
-                      <Trash2 className="w-5 h-5" />
-                      Delete
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
+          <div className="relative overflow-hidden min-h-[450px]">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={currentPage}
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.15 }}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              >
+                {currentImages.map((image) => (
+                  <motion.div
+                    key={image.id}
+                    variants={imageVariants}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ duration: 0.15 }}
+                    className="relative group aspect-square"
+                    onClick={() => toggleImageSelection(image)}
+                  >
+                    <div className="w-full h-full relative">
+                      <img
+                        src={`http://localhost:3000/generated/${image.filename}`}
+                        alt={`Generated for ${image.company_name}`}
+                        className={`w-full h-full object-cover rounded-lg transition-all duration-200 ${
+                          selectedImages.has(image) ? "ring-4 ring-blue-500 ring-offset-2" : ""
+                        }`}
+                        loading="lazy"
+                      />
+                      
+                      {isDeleting(image.id) && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                          <span className="text-white text-sm font-medium">
+                            Deleting... Click 'Undo' to cancel
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-2 rounded-lg">
+                        <Button
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg
+                                    border border-blue-700 shadow-md hover:shadow-lg transition-all
+                                    flex items-center gap-2 font-medium"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setImageToDownload(image)
+                            setIsDownloadDialogOpen(true)
+                          }}
+                          disabled={isDeleting(image.id)}
+                        >
+                          <Download className="w-5 h-5" />
+                          Download
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg
+                                    border border-red-700 shadow-md hover:shadow-lg transition-all
+                                    flex items-center gap-2 font-medium"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDelete(image)
+                          }}
+                          disabled={isDeleting(image.id)}
+                        >
+                          <Trash2 className="w-5 h-5" />
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
             </AnimatePresence>
-          </motion.div>
+          </div>
           
           <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
         </div>
@@ -213,4 +234,3 @@ function GeneratedImagesLibrary() {
 }
 
 export default GeneratedImagesLibrary
-
