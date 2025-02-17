@@ -1,7 +1,9 @@
+"use client"
+
 import { useDeleteImage } from "@/features/image-management/components/library/hooks/useDeleteImages.jsx"
 import { useImageDownload } from "@/features/image-management/components/library/hooks/useImageDownload.jsx"
 import { useGeneratedImagesGrid } from "@/features/image-management/components/library/hooks/useGeneratedImagesGrid.jsx"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Download, Trash2 } from "lucide-react"
 import { Button } from "@/shared/ui/button.jsx"
@@ -13,19 +15,20 @@ import DownloadDialog from "../../ui/download-dialog.jsx"
 const pageVariants = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
-  exit: { opacity: 0 }
-};
+  exit: { opacity: 0 },
+}
 
 const imageVariants = {
   initial: { opacity: 0 },
-  animate: { opacity: 1 }
-};
+  animate: { opacity: 1 },
+}
 
 function GeneratedImagesLibrary() {
   const [images, setImages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const { deleteImage, isDeleting } = useDeleteImage()
-  const { isDownloadDialogOpen, setIsDownloadDialogOpen, imageToDownload, setImageToDownload, downloadImage } = useImageDownload()
+  const { isDownloadDialogOpen, setIsDownloadDialogOpen, imageToDownload, setImageToDownload, downloadImage } =
+    useImageDownload()
   
   const {
     selectedImages,
@@ -39,7 +42,7 @@ function GeneratedImagesLibrary() {
   
   const { toast } = useToast()
   
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await axios.get("http://localhost:3000/api/generated-images")
@@ -59,11 +62,11 @@ function GeneratedImagesLibrary() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [toast])
   
   useEffect(() => {
     fetchImages()
-  }, [])
+  }, [fetchImages])
   
   const handleDelete = (image) => {
     deleteImage(image, () => {
@@ -177,13 +180,13 @@ function GeneratedImagesLibrary() {
                           selectedImages.has(image) ? "ring-4 ring-blue-500 ring-offset-2" : ""
                         }`}
                         loading="lazy"
+                        decoding="async"
+                        fetchpriority="high"
                       />
                       
                       {isDeleting(image.id) && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
-                          <span className="text-white text-sm font-medium">
-                            Deleting... Click 'Undo' to cancel
-                          </span>
+                          <span className="text-white text-sm font-medium">Deleting... Click 'Undo' to cancel</span>
                         </div>
                       )}
                       
@@ -234,3 +237,4 @@ function GeneratedImagesLibrary() {
 }
 
 export default GeneratedImagesLibrary
+

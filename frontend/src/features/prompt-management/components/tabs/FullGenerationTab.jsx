@@ -96,7 +96,7 @@ export function FullGenerationTab() {
 				animate={{ x: 0, opacity: 1 }}
 				transition={{ duration: 0.5 }}
 			>
-				<div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 h-full">
+				<div className="bg-white rounded-2xl shadow-sm p-4 sm:p-4 lg:p-4 h-full">
 					<ResultSection
 						generatedImages={generatedImages}
 						isGenerating={isGeneratingImages}
